@@ -18,6 +18,8 @@ namespace AZI_SWCustomProperties
 {
     public partial class MainForm : Form
     {
+        private bool formLoading = false;
+
         private Thread thdOdooLogin;
         private string odooUserStatusLabel;
         private Color odooUserStatusColor;
@@ -41,6 +43,8 @@ namespace AZI_SWCustomProperties
         public MainForm()
         {
             InitializeComponent();
+
+            formLoading = true;
             SolidWorksConnect();
             PopulateConfigs();
 
@@ -49,6 +53,8 @@ namespace AZI_SWCustomProperties
             odooDb = Properties.UserSettings.Default.OdooDb;
             thdOdooLogin = new Thread(new ThreadStart(OdooLoginControl));
             thdOdooLogin.Start();
+
+            formLoading = false;
         }
 
         private void SolidWorksConnect()
@@ -64,11 +70,9 @@ namespace AZI_SWCustomProperties
                 MessageBox.Show(exc.Message);
                 return;
             }
-            lblCurrentFile.Text = swMod.ModelName;
-            lblCurrentFile.BackColor = Color.LightGreen;
             this.props = swMod.GetCustProp("");
             this.productCode = swMod.GetProductCode();
-            lblProductCode.Text = this.productCode;
+            txtEffectiveCode.Text = this.productCode;
             this.Text = "SW Properties: " + swMod.ModelName;
         }
 
@@ -159,6 +163,10 @@ namespace AZI_SWCustomProperties
             {
                 if (this.Controls.ContainsKey(prop.Key))
                     this.Controls[prop.Key].Text = (string)prop.Value;
+                if (tabPage1.Controls.ContainsKey(prop.Key))
+                    tabPage1.Controls[prop.Key].Text = (string)prop.Value;
+                if (tabPage2.Controls.ContainsKey(prop.Key))
+                    tabPage2.Controls[prop.Key].Text = (string)prop.Value;
             }
         }
 
@@ -167,8 +175,28 @@ namespace AZI_SWCustomProperties
             foreach (KeyValuePair<string, Object> prop in this.props.FieldValues)
             {
                 if (this.Controls.ContainsKey("field" + prop.Key))
-                    if (this.Controls["field" + prop.Key].Text != (string)prop.Value)
+                    if (this.Controls[prop.Key].Text != (string)prop.Value)
                         return true;
+                if (tabPage1.Controls.ContainsKey(prop.Key))
+                    if (tabPage1.Controls[prop.Key].Text != (string)prop.Value)
+                        return true;
+                if (tabPage2.Controls.ContainsKey(prop.Key))
+                    if (tabPage2.Controls[prop.Key].Text != (string)prop.Value)
+                        return true;
+            }
+            return false;
+        }
+
+        private bool StoreChanges()
+        {
+            foreach (KeyValuePair<string, Object> prop in this.props.FieldValues)
+            {
+                if (this.Controls.ContainsKey("field" + prop.Key))
+                    props.UpdateFieldValue(prop.Key, this.Controls[prop.Key].Text);
+                if (tabPage1.Controls.ContainsKey(prop.Key))
+                    props.UpdateFieldValue(prop.Key, tabPage1.Controls[prop.Key].Text);
+                if (tabPage2.Controls.ContainsKey(prop.Key))
+                    props.UpdateFieldValue(prop.Key, tabPage2.Controls[prop.Key].Text);
             }
             return false;
         }
@@ -204,7 +232,7 @@ namespace AZI_SWCustomProperties
 
         private void CboCurrentConfig_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (CheckForChanges())
+            if (!formLoading && CheckForChanges())
             {
                 System.Windows.Forms.DialogResult result = MessageBox.Show(
                     "Data has changed.  Do you want to discard changes?",
@@ -215,6 +243,7 @@ namespace AZI_SWCustomProperties
                     return;
             }
             swMod.ConfigName = (string)((ComboboxItem)cboCurrentConfig.SelectedItem).Value;
+            props = swMod.GetCustProp((string)((ComboboxItem)cboCurrentConfig.SelectedItem).Value);
             PopulateFormData();
         }
 
@@ -231,6 +260,20 @@ namespace AZI_SWCustomProperties
                     e.Cancel = true;
             }
             thdOdooLogin.Abort();
+        }
+
+        private void BtnApply_Click(object sender, EventArgs e)
+        {
+            StoreChanges();
+            swMod.WriteCustProp(props, (string)((ComboboxItem)cboCurrentConfig.SelectedItem).Value);
+            props = swMod.GetCustProp((string)((ComboboxItem)cboCurrentConfig.SelectedItem).Value);
+            PopulateFormData();
+        }
+
+        private void BtnApplyClose_Click(object sender, EventArgs e)
+        {
+            BtnApply_Click(sender, e);
+            this.Close();
         }
     }
 

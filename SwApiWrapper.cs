@@ -380,6 +380,21 @@ namespace SwApiWrapper
             return partNum + "." + revision;
         }
 
+        public void WriteCustProp(SwCustProp props, string thisConfigName)
+        {
+            CustomPropertyManager swCustPropMgr = (CustomPropertyManager)swModelDocExt.get_CustomPropertyManager(thisConfigName);
+
+            // We always store custom properties as text (i.e. swCustomInfoType_e.swCustomInfoText)
+            foreach (string propName in props.PropNames)
+                swCustPropMgr.Add3(
+                    propName,
+                    (int)swCustomInfoType_e.swCustomInfoText,
+                    props.PropertyValues[propName].ToString(),
+                    (int)swCustomPropertyAddOption_e.swCustomPropertyDeleteAndAdd);
+
+            swMainModel.SetSaveFlag();
+        }
+
         #endregion
 
         #region Model Image
@@ -822,6 +837,46 @@ namespace SwApiWrapper
             }
         }
 
+        private readonly Dictionary<string, int> propTypes = new Dictionary<string, int>(){
+            { "AltQty", (int)swCustomInfoType_e.swCustomInfoText },
+            { "PartNum", (int)swCustomInfoType_e.swCustomInfoText },
+            { "Description", (int)swCustomInfoType_e.swCustomInfoText },
+            { "Designed By", (int)swCustomInfoType_e.swCustomInfoText },
+            { "Date1", (int)swCustomInfoType_e.swCustomInfoText },
+            { "Type", (int)swCustomInfoType_e.swCustomInfoText },
+            { "UOM", (int)swCustomInfoType_e.swCustomInfoText },
+            { "Eng Approval", (int)swCustomInfoType_e.swCustomInfoText },
+            { "Eng Appr Date", (int)swCustomInfoType_e.swCustomInfoText },
+            { "Mfg Approval", (int)swCustomInfoType_e.swCustomInfoText },
+            { "Mfg Appr Date", (int)swCustomInfoType_e.swCustomInfoText },
+            { "QA Approval", (int)swCustomInfoType_e.swCustomInfoText },
+            { "QA Appr Date", (int)swCustomInfoType_e.swCustomInfoText },
+            { "Purch Approval", (int)swCustomInfoType_e.swCustomInfoText },
+            { "Purch Appr Date", (int)swCustomInfoType_e.swCustomInfoText },
+            { "Material", (int)swCustomInfoType_e.swCustomInfoText },
+            { "Finish", (int)swCustomInfoType_e.swCustomInfoText },
+            { "Coating", (int)swCustomInfoType_e.swCustomInfoText },
+            { "Notes", (int)swCustomInfoType_e.swCustomInfoText },
+            { "Revision", (int)swCustomInfoType_e.swCustomInfoText },
+            { "ECO", (int)swCustomInfoType_e.swCustomInfoText },
+            { "EcoRevs", (int)swCustomInfoType_e.swCustomInfoText },
+            { "Zone", (int)swCustomInfoType_e.swCustomInfoText },
+            { "EcoDescription", (int)swCustomInfoType_e.swCustomInfoText },
+            { "Date2", (int)swCustomInfoType_e.swCustomInfoText },
+            { "EcoChk", (int)swCustomInfoType_e.swCustomInfoText },
+            { "P_M", (int)swCustomInfoType_e.swCustomInfoText },
+            { "MaterialPn", (int)swCustomInfoType_e.swCustomInfoText },
+            { "RouteTemplate", (int)swCustomInfoType_e.swCustomInfoText },
+            { "PurchFlag", (int)swCustomInfoType_e.swCustomInfoText },
+        };
+        public Dictionary<string, int> PropTypes
+        {
+            get
+            {
+                return propTypes;
+            }
+        }
+
         private readonly List<string> otherFieldNames = new List<string>(){
             "filename",
             "configname",
@@ -910,6 +965,11 @@ namespace SwApiWrapper
             foreach (string key in otherFieldNames)
                 dictFieldValues.Add(key, dictPropValues[key]);
             return dictFieldValues;
+        }
+
+        public void UpdateFieldValue(string fieldName, Object fieldValue)
+        {
+            dictPropValues[dictFieldProp[fieldName]] = fieldValue;
         }
 
         public static byte[] ImageToByteArray(Bitmap bitmapIn)

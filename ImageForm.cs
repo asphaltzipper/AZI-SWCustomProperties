@@ -108,9 +108,11 @@ namespace ImageForm
 
         private void CmdUpload_Click(object sender, EventArgs e)
         {
-            if (oProd == null)
+            if (this.oProd == null)
+            {
                 MessageBox.Show("No Odoo product has been loaded");
                 return;
+            }
             byte[] byteArray = SwCustProp.ImageToByteArray((Bitmap)pbModelImage.Image);
             string base64String = Convert.ToBase64String(byteArray);
             Dictionary<string, Object> values = new Dictionary<string, Object>()
