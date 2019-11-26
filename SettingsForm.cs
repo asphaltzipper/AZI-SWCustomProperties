@@ -19,6 +19,7 @@ namespace AZI_SWCustomProperties
             txtOdooUrl.Text = Properties.UserSettings.Default.OdooUrl;
             txtOdooDb.Text = Properties.UserSettings.Default.OdooDb;
             txtSwKey.Text = Properties.AppSettings.Default.SwLicenseKey;
+            txtAreaFactor.Text = Properties.AppSettings.Default.AreaFactor.ToString();
             var cm = new Credential { Target = Properties.AppSettings.Default.OdooCredentialTarget };
             if (cm.Load())
             {
@@ -32,6 +33,13 @@ namespace AZI_SWCustomProperties
             Properties.UserSettings.Default.OdooDb = txtOdooDb.Text;
             Properties.UserSettings.Default.OdooUrl = txtOdooUrl.Text;
             Properties.AppSettings.Default.SwLicenseKey = txtSwKey.Text;
+            Decimal areaFactor;
+            if (!Decimal.TryParse(txtAreaFactor.Text, out areaFactor))
+            {
+                MessageBox.Show("Area Factor must be a decimal number");
+                return;
+            }
+            Properties.AppSettings.Default.AreaFactor = areaFactor;
             Properties.UserSettings.Default.Save();
             Properties.AppSettings.Default.Save();
 

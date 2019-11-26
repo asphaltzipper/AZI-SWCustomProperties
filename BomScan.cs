@@ -14,7 +14,8 @@ using System.Data;
 using System.Data.Common;
 using System.Data.SQLite;
 
-using SwApiWrapper;
+using SwApiAbstraction;
+using PropertyDataScaffold;
 
 
 namespace sw_BOM_Scan
@@ -38,18 +39,22 @@ namespace sw_BOM_Scan
 		private DbCommand cmdGetAdjCount;
 		private DbCommand cmdCheckAdjacency;
 
+        private SwApiWrapper swApi;
         private SwModelWrapper swMod;
+        private PropertyScaffold scaffold;
 
-        public BomScan(SwModelWrapper swModel)
+        public BomScan(SwApiWrapper swApi, SwModelWrapper swModel, PropertyScaffold scaffold)
 		{
 			InitializeComponent();
-            swMod = swModel;
+            this.swMod = swModel;
+            this.swApi = swApi;
+            this.scaffold = scaffold;
         }
 
         void MainFormLoad(object sender, EventArgs e)
 		{
             txtActiveDoc.Text = swMod.PathName;
-            txtActiveConfig.Text = swMod.ConfigName;
+            txtActiveConfig.Text = swMod.CurrentConfigName;
         }
 
 		void CmdTargetFileClick(object sender, EventArgs e) {
@@ -136,10 +141,39 @@ namespace sw_BOM_Scan
 			//this.cmdCancel.Enabled = false;
 			
 		}
-		
-		
-		
-		void ScanControl() {
+
+        private void BtnExport_Click(object sender, EventArgs e)
+        {
+            String fileName;
+
+            saveFileDialog2.FileName = null;        // Clear old file names
+            saveFileDialog2.ShowDialog();           // Display the dialog
+            fileName = saveFileDialog2.FileName;    // Get filename
+
+            if (File.Exists(fileName))
+            {
+                DialogResult dr = MessageBox.Show("Overwrite " + fileName + "?",
+                    "Overwrite File",
+                    MessageBoxButtons.YesNo);
+                if (dr != DialogResult.Yes)
+                    return;
+            }
+            ExportXml(fileName);
+        }
+
+
+        private void BtnReturn_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
+
+        private void BtnCancel_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
+
+
+        void ScanControl() {
 			
 			MethodInvoker WriteLabelDelegate = new MethodInvoker(WriteLabel);
 			
@@ -154,8 +188,6 @@ namespace sw_BOM_Scan
 			Invoke(WriteLabelDelegate);
 			
 		}
-		
-		
 		
 		ThreadInterruptedException DoScan() {
 			
@@ -173,7 +205,7 @@ namespace sw_BOM_Scan
 			SwComponentWrapper swRootComp = swMod.GetRootComponentWrapper();
 			
 			// Get name of configuration containing properties
-			string strMainConfig = swMod.ConfigName;
+			string strMainConfig = swMod.CurrentConfigName;
 			string strMainPath = swMod.PathName;
 		
 			// write custom properties for main model
@@ -287,11 +319,20 @@ namespace sw_BOM_Scan
                 swModel = swComponent.GetModelWrapper(strConfigName);
 
             // Get custom properties
-            SwCustProp props = swModel.GetCustProp(strConfigName, cbxGetImages.Checked);
+            //SwCustProp props = swModel.GetCustProp(strConfigName, cbxGetImages.Checked);
+            DataRow props = swModel.GetCustomProp(strConfigName, withImage: cbxGetImages.Checked, merge: true);
 
             // Execute query
-            foreach (KeyValuePair<string, object> prop in props.FieldValues)
-                cmdInsertConfigs.Parameters["@" + prop.Key].Value = prop.Value;
+            foreach (DataColumn col in props.Table.Columns)
+            {
+                if (!scaffold.ScanFields.Contains(col.ColumnName))
+                    continue;
+                string param = "@" + col.ColumnName;
+                object value = props[col.ColumnName];
+                cmdInsertConfigs.Parameters[param].Value = value;
+            }
+            //foreach (KeyValuePair<string, object> prop in props.FieldValues)
+            //    cmdInsertConfigs.Parameters["@" + prop.Key].Value = prop.Value;
             cmdInsertConfigs.ExecuteNonQuery();
 			
 		}
@@ -348,68 +389,30 @@ namespace sw_BOM_Scan
 			cnn.Open();
 			
 			DbCommand cmd = cnn.CreateCommand();
-			
-			cmd.CommandText = @"
-				CREATE TABLE IF NOT EXISTS configs (
-					filename TEXT,
- 					configname TEXT,
-					PlaceHoldFlag INTEGER,
-					ShowChildren INTEGER,
- 						
-                    Image BLOB,
-                    CuttingLengthOuter REAL,
-                    CuttingLengthInner REAL,
-                    CutOutCount REAL,
-                    BendCount REAL,
-
-					Uom TEXT,
-					PartNum TEXT,
-					Description TEXT,
-					DesignedBy TEXT,
-					DrawDate TEXT,
-					Type TEXT,
-					AltQty REAL,
-					EngApproval TEXT,
-					EngApprDate TEXT,
-					MfgApproval TEXT,
-					MfgApprDate TEXT,
-					QaApproval TEXT,
-					QaApprDate TEXT,
-					PurchApproval TEXT,
-					PurchApprDate TEXT,
-					Material TEXT,
-					Finish TEXT,
-					Coating TEXT,
-					Notes TEXT,
-					Revision TEXT,
-					Ecos TEXT,
-					EcoRevs TEXT,
-					Zone TEXT,
-					EcoDescriptions TEXT,
-					EcoDates TEXT,
-					EcoChks TEXT,
-					Catalog TEXT,
-
-                    MaterialPn TEXT,
-                    RouteTemplate TEXT,
-                    PurchFlag INTEGER,
-
-                    PRIMARY KEY (filename,configname)
-						
-				)
-			";
+            cmd.CommandText = String.Format(
+                "CREATE TABLE IF NOT EXISTS configs (\n" +
+                "    {0},\n" +
+                "    PRIMARY KEY (filename,configname)\n" +
+                ");", String.Join(",\n    ", scaffold.ScanColumns));
 			cmd.ExecuteNonQuery();
-			
-			cmd.CommandText = @"
+
+            string strFields = String.Join(",", scaffold.ScanFields);
+            string strParams = String.Join(",@", scaffold.ScanFields);
+            cmdInsertConfigs = cnn.CreateCommand();
+            cmdInsertConfigs.CommandText = String.Format("INSERT INTO configs ({0}) VALUES (@{1})", strFields, strParams);
+            foreach (string scanField in scaffold.ScanFields)
+                cmdInsertConfigs.Parameters.Add(new SQLiteParameter("@" + scanField));
+
+            cmd.CommandText = @"
 				CREATE TABLE IF NOT EXISTS adjacency (
 					pname TEXT,
 					pconfig TEXT,
 					cname TEXT,
 					cconfig TEXT,
 					adjcount INTEGER,
-						
+					
 					PRIMARY KEY (pname,pconfig,cname,cconfig),
-						
+					
 					FOREIGN KEY (pname) REFERENCES configs(filename),
 					FOREIGN KEY (pconfig) REFERENCES configs(configname),
 					FOREIGN KEY (cname) REFERENCES configs(filename),
@@ -417,8 +420,8 @@ namespace sw_BOM_Scan
 				)
 			";
 			cmd.ExecuteNonQuery();
-			
-			cmdCheckFiles = cnn.CreateCommand();
+
+            cmdCheckFiles = cnn.CreateCommand();
 			cmdCheckFiles.CommandText = "SELECT COUNT(*) FROM Configs where filename like @filename";
 			cmdCheckFiles.Parameters.Add(new SQLiteParameter("@filename"));
 			
@@ -432,25 +435,6 @@ namespace sw_BOM_Scan
 			cmdShowChildren.Parameters.Add(new SQLiteParameter("@filename"));
 			cmdShowChildren.Parameters.Add(new SQLiteParameter("@configname"));
 
-            SwCustProp tempProp = new SwCustProp();
-            string strFields = String.Format("filename,configname,PlaceHoldFlag,ShowChildren,Image," +
-                "CuttingLengthOuter,CuttingLengthInner,CutOutCount,BendCount,{0}", String.Join(",", tempProp.FieldNames));
-            string strParams = String.Format("@filename,@configname,@PlaceHoldFlag,@ShowChildren," +
-                "@Image,@CuttingLengthOuter,@CuttingLengthInner,@CutOutCount,@BendCount,@{0}", String.Join(",@", tempProp.FieldNames));
-            cmdInsertConfigs = cnn.CreateCommand();
-			cmdInsertConfigs.CommandText = String.Format("INSERT INTO configs ({0}) VALUES({1})", strFields, strParams);
-			cmdInsertConfigs.Parameters.Add(new SQLiteParameter("@filename"));
-			cmdInsertConfigs.Parameters.Add(new SQLiteParameter("@configname"));
-			cmdInsertConfigs.Parameters.Add(new SQLiteParameter("@PlaceHoldFlag"));
-			cmdInsertConfigs.Parameters.Add(new SQLiteParameter("@ShowChildren"));
-			cmdInsertConfigs.Parameters.Add(new SQLiteParameter("@Image"));
-			cmdInsertConfigs.Parameters.Add(new SQLiteParameter("@CuttingLengthOuter"));
-			cmdInsertConfigs.Parameters.Add(new SQLiteParameter("@CuttingLengthInner"));
-			cmdInsertConfigs.Parameters.Add(new SQLiteParameter("@CutOutCount"));
-			cmdInsertConfigs.Parameters.Add(new SQLiteParameter("@BendCount"));
-            foreach (string fieldName in tempProp.FieldNames)
-			    cmdInsertConfigs.Parameters.Add(new SQLiteParameter("@"+fieldName));
-			
 			cmdInsertAdjacency = cnn.CreateCommand();
 			cmdInsertAdjacency.CommandText = "INSERT INTO adjacency VALUES(@PName,@PConfig,@CName,@CConfig,@Count)";
 			cmdInsertAdjacency.Parameters.Add(new SQLiteParameter("@PName"));
@@ -492,14 +476,36 @@ namespace sw_BOM_Scan
             cmdCheckAdjacency.Parameters.Add(new SQLiteParameter("@PConfig"));
         }
 
-        private void BtnReturn_Click(object sender, EventArgs e)
+
+        void ExportXml(string fileName)
         {
-            this.Close();
+            DataSet dsAll = new DataSet("bom_scan");
+
+            DbCommand comConfigs = cnn.CreateCommand();
+            comConfigs.CommandText = "select * from configs";
+            DataTable dtConfigs = new DataTable("config");
+
+            //DbCommand comBoms = cnn.CreateCommand();
+            //comBoms.CommandText = "select distinct pname, pconfig from adjacency";
+            //DataTable dtBoms = new DataTable("bom");
+
+            DbCommand comAdjacency = cnn.CreateCommand();
+            comAdjacency.CommandText = "select * from adjacency";
+            DataTable dtAdjacency = new DataTable("adjacency");
+
+            using (DbDataReader dr = comConfigs.ExecuteReader())
+                dtConfigs.Load(dr);
+            //using (DbDataReader dr = comBoms.ExecuteReader())
+            //    dtBoms.Load(dr);
+            using (DbDataReader dr = comAdjacency.ExecuteReader())
+                dtAdjacency.Load(dr);
+
+            dsAll.Tables.Add(dtConfigs);
+            //dsAll.Tables.Add(dtBoms);
+            dsAll.Tables.Add(dtAdjacency);
+
+            dsAll.WriteXml(fileName);
         }
 
-        private void BtnCancel_Click(object sender, EventArgs e)
-        {
-            this.Close();
-        }
     }
 }

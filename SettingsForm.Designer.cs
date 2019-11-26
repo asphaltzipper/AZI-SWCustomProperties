@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.txtOdooUrl = new System.Windows.Forms.TextBox();
             this.txtOdooDb = new System.Windows.Forms.TextBox();
             this.lblOdooUrl = new System.Windows.Forms.Label();
@@ -39,6 +40,9 @@
             this.txtOdooUser = new System.Windows.Forms.TextBox();
             this.lblSwKey = new System.Windows.Forms.Label();
             this.txtSwKey = new System.Windows.Forms.TextBox();
+            this.lblAreaFactor = new System.Windows.Forms.Label();
+            this.txtAreaFactor = new System.Windows.Forms.TextBox();
+            this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.SuspendLayout();
             // 
             // txtOdooUrl
@@ -75,7 +79,7 @@
             // 
             // btnSubmit
             // 
-            this.btnSubmit.Location = new System.Drawing.Point(285, 142);
+            this.btnSubmit.Location = new System.Drawing.Point(285, 168);
             this.btnSubmit.Name = "btnSubmit";
             this.btnSubmit.Size = new System.Drawing.Size(75, 23);
             this.btnSubmit.TabIndex = 5;
@@ -132,11 +136,31 @@
             this.txtSwKey.Size = new System.Drawing.Size(283, 20);
             this.txtSwKey.TabIndex = 10;
             // 
+            // lblAreaFactor
+            // 
+            this.lblAreaFactor.AutoSize = true;
+            this.lblAreaFactor.Location = new System.Drawing.Point(12, 145);
+            this.lblAreaFactor.Name = "lblAreaFactor";
+            this.lblAreaFactor.Size = new System.Drawing.Size(62, 13);
+            this.lblAreaFactor.TabIndex = 13;
+            this.lblAreaFactor.Text = "Area Factor";
+            // 
+            // txtAreaFactor
+            // 
+            this.txtAreaFactor.Location = new System.Drawing.Point(77, 142);
+            this.txtAreaFactor.Name = "txtAreaFactor";
+            this.txtAreaFactor.Size = new System.Drawing.Size(283, 20);
+            this.txtAreaFactor.TabIndex = 12;
+            this.toolTip1.SetToolTip(this.txtAreaFactor, "Sheet metal area is increased by multiplying Area Factor by thickness and adding " +
+        "to width and length");
+            // 
             // SettingsForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(372, 177);
+            this.ClientSize = new System.Drawing.Size(372, 200);
+            this.Controls.Add(this.lblAreaFactor);
+            this.Controls.Add(this.txtAreaFactor);
             this.Controls.Add(this.lblSwKey);
             this.Controls.Add(this.txtSwKey);
             this.Controls.Add(this.lblOdooPass);
@@ -168,5 +192,8 @@
         private System.Windows.Forms.TextBox txtOdooUser;
         private System.Windows.Forms.Label lblSwKey;
         private System.Windows.Forms.TextBox txtSwKey;
+        private System.Windows.Forms.Label lblAreaFactor;
+        private System.Windows.Forms.TextBox txtAreaFactor;
+        private System.Windows.Forms.ToolTip toolTip1;
     }
 }

@@ -67,5 +67,17 @@ namespace AZI_SWCustomProperties.Properties {
                 this["ImageHeight"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("2.75")]
+        public decimal AreaFactor {
+            get {
+                return ((decimal)(this["AreaFactor"]));
+            }
+            set {
+                this["AreaFactor"] = value;
+            }
+        }
     }
 }

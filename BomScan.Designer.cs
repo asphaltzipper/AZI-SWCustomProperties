@@ -52,6 +52,8 @@ namespace sw_BOM_Scan
             this.btnReturn = new System.Windows.Forms.Button();
             this.btnCancel = new System.Windows.Forms.Button();
             this.cbxGetImages = new System.Windows.Forms.CheckBox();
+            this.btnExport = new System.Windows.Forms.Button();
+            this.saveFileDialog2 = new System.Windows.Forms.SaveFileDialog();
             this.SuspendLayout();
             // 
             // txtActiveDoc
@@ -212,6 +214,17 @@ namespace sw_BOM_Scan
             this.cbxGetImages.Text = "Get Images";
             this.cbxGetImages.UseVisualStyleBackColor = true;
             // 
+            // btnExport
+            // 
+            this.btnExport.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnExport.Location = new System.Drawing.Point(259, 136);
+            this.btnExport.Name = "btnExport";
+            this.btnExport.Size = new System.Drawing.Size(64, 32);
+            this.btnExport.TabIndex = 15;
+            this.btnExport.Text = "Export";
+            this.btnExport.UseVisualStyleBackColor = true;
+            this.btnExport.Click += new System.EventHandler(this.BtnExport_Click);
+            // 
             // BomScan
             // 
             this.AcceptButton = this.btnReturn;
@@ -220,6 +233,7 @@ namespace sw_BOM_Scan
             this.CancelButton = this.btnCancel;
             this.ClientSize = new System.Drawing.Size(477, 181);
             this.ControlBox = false;
+            this.Controls.Add(this.btnExport);
             this.Controls.Add(this.cbxGetImages);
             this.Controls.Add(this.btnCancel);
             this.Controls.Add(this.btnReturn);
@@ -257,5 +271,7 @@ namespace sw_BOM_Scan
         private System.Windows.Forms.Button btnReturn;
         private System.Windows.Forms.Button btnCancel;
         private System.Windows.Forms.CheckBox cbxGetImages;
+        private System.Windows.Forms.Button btnExport;
+        private System.Windows.Forms.SaveFileDialog saveFileDialog2;
     }
 }

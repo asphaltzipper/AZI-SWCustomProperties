@@ -5,17 +5,22 @@ using System.Text;
 using System.Threading.Tasks;
 
 using System.IO;
-using System.IO.MemoryMappedFiles;
 using System.Drawing;
 
 using SolidWorks.Interop.swconst;
 using SolidWorks.Interop.sldworks;
 using SolidWorks.Interop.swdocumentmgr;
 
+using System.Data;
+using System.Data.Common;
+using System.Data.SQLite;
+
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 
-namespace SwApiWrapper
+using PropertyDataScaffold;
+
+namespace SwApiAbstraction
 {
 
     public class SwApiWrapper
@@ -23,6 +28,115 @@ namespace SwApiWrapper
         private SldWorks swApp;
         private ModelDoc2 swMainModel;
         private DrawingDoc swDrawDoc;
+
+        //#region Custom Property Data Structure
+
+        //// SolidWorks custom property types:
+        //// swCustomInfoType_e.swCustomInfoDate = 64
+        //// swCustomInfoType_e.swCustomInfoDouble = 5
+        //// swCustomInfoType_e.swCustomInfoNumber = 3
+        //// swCustomInfoType_e.swCustomInfoText = 30
+        //// swCustomInfoType_e.swCustomInfoUnknown = 0
+        //// swCustomInfoType_e.swCustomInfoYesOrNo = 11
+
+        //// ******************************************************************************
+        //// ***                                                                        ***
+        //// ***        The custom property for 'Units of Measure' was originally       ***
+        //// ***        named 'Alternate Quantity'.  When we added a property for       ***
+        //// ***        tracking alternate quantity values (double precision            ***
+        //// ***        numbers), we didn't want to go back and change the custom       ***
+        //// ***        properties in every part file.                                  ***
+        //// ***        As a work around:                                               ***
+        //// ***            -we labeled the 'Alternate Quantity' text field 'UOM'       ***
+        //// ***            -we are writing the units of measure to the                 ***
+        //// ***             'Alternate Quantity' custom property                       ***
+        //// ***            -we labeled the 'UOM' text field 'Alternate Quantity'       ***
+        //// ***            -we are writing the alternate quantity value to the         ***
+        //// ***             'UOM' custom property                                      ***
+        //// ***                                                                        ***
+        //// ******************************************************************************
+
+        //DataTable dtPropDefs;
+        //public DataTable PropDefs
+        //{
+        //    get
+        //    {
+        //        return dtPropDefs;
+        //    }
+        //}
+
+        //DataTable dtProps;
+        //public DataTable PropTable
+        //{
+        //    get
+        //    {
+        //        return dtProps.Clone();
+        //    }
+        //}
+
+        //public DataRow PropRow
+        //{
+        //    get
+        //    {
+        //        return dtProps.NewRow();
+        //    }
+        //}
+
+        //private readonly List<string> propNames = new List<string>();
+        //public List<string> PropNames
+        //{
+        //    get
+        //    {
+        //        return propNames;
+        //    }
+        //}
+
+        //private readonly List<string> fieldNames = new List<string>();
+        //public List<string> FieldNames
+        //{
+        //    get
+        //    {
+        //        return fieldNames;
+        //    }
+        //}
+
+        //private readonly Dictionary<string, int> propTypes = new Dictionary<string, int>();
+        //public Dictionary<string, int> PropTypes
+        //{
+        //    get
+        //    {
+        //        return propTypes;
+        //    }
+        //}
+
+        //private readonly List<string> otherFieldNames = new List<string>();
+        //public List<string> OtherFieldNames
+        //{
+        //    get
+        //    {
+        //        return otherFieldNames;
+        //    }
+        //}
+
+        //private Dictionary<string, string> dictPropField = new Dictionary<string, string>();
+        //public Dictionary<string, string> PropFieldMap
+        //{
+        //    get
+        //    {
+        //        return dictPropField;
+        //    }
+        //}
+
+        //private Dictionary<string, string> dictFieldProp = new Dictionary<string, string>();
+        //public Dictionary<string, string> FieldPropMap
+        //{
+        //    get
+        //    {
+        //        return dictFieldProp;
+        //    }
+        //}
+
+        //#endregion
 
         private SwModelWrapper swModelWrap;
         public SwModelWrapper MainModel
@@ -41,6 +155,7 @@ namespace SwApiWrapper
             string loadMessage = LoadActiveModel();
             if (loadMessage != null)
                 throw new Exception(loadMessage);
+            //LoadPropertyData();
         }
 
         private string SwAttach()
@@ -147,7 +262,7 @@ namespace SwApiWrapper
                 swMainModel = swDoc;
             }
 
-            swModelWrap = new SwModelWrapper(swApp, swDocType, swMainModel, strConfigName: null);
+            swModelWrap = new SwModelWrapper(this, swApp, swDocType, swMainModel, strConfigName: null);
 
             return null;
 
@@ -182,11 +297,78 @@ namespace SwApiWrapper
 
         }
 
+        //private void LoadPropertyData()
+        //{
+        //    DbConnection cnn = new SQLiteConnection("Data Source=|DataDirectory|\\property_field_mapping.db3");
+        //    cnn.Open();
+        //    DbCommand comm = cnn.CreateCommand();
+        //    comm.CommandText = "select * from field_property order by sequence";
+        //    dtPropDefs = new DataTable();
+        //    using (DbDataReader dr = comm.ExecuteReader())
+        //    {
+        //        dtPropDefs.Load(dr);
+        //    }
+
+        //    // Get custom properties from api wrapper
+        //    foreach (DataRow dr in dtPropDefs.Select("", "sequence asc"))
+        //    {
+        //        if (!dr.IsNull("sw_prop"))
+        //        {
+        //            // build name lists
+        //            propNames.Add((string)dr["sw_prop"]);
+        //            fieldNames.Add((string)dr["scan_field"]);
+        //            // Map SolidWorks custom property names to SolidWorks custom property types
+        //            propTypes.Add((string)dr["sw_prop"], (int)dr["sw_type"]);
+        //            // Map SolidWorks custom property names to DB field names
+        //            dictPropField.Add((string)dr["sw_prop"], (string)dr["scan_field"]);
+        //            // Map DB field names to SolidWorks custom property names
+        //            dictFieldProp.Add((string)dr["scan_field"], (string)dr["sw_prop"]);
+        //        }
+        //        else
+        //            otherFieldNames.Add((string)dr["sw_prop"]);
+
+        //        // build DataTable
+        //        DataColumn col = new DataColumn((string)dr["scan_field"]);
+        //        col.DataType = System.Type.GetType((string)dr["dt_type"]);
+        //        dtProps.Columns.Add(col);
+        //    }
+        //}
+
+        //public static byte[] ImageToByteArray(Bitmap bitmapIn)
+        //{
+        //    Image imageIn = (Image)bitmapIn;
+        //    if (imageIn == null) return null;
+        //    using (MemoryStream ms = new MemoryStream())
+        //    {
+        //        try
+        //        {
+        //            imageIn.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+        //            return ms.ToArray();
+        //        }
+        //        catch
+        //        {
+        //            return null;
+        //        }
+        //    }
+        //}
+
+        //public static Image ByteArrayToImage(byte[] byteArrayIn)
+        //{
+        //    if (byteArrayIn == null) return null;
+        //    using (MemoryStream ms = new MemoryStream(byteArrayIn))
+        //    {
+        //        Image returnImage = Image.FromStream(ms);
+        //        return returnImage;
+        //    }
+        //}
+
     }
 
 
     public class SwModelWrapper
     {
+        private SwApiWrapper swApi;
+        private PropertyScaffold propScaffold = new PropertyScaffold();
         private SldWorks swApp;
         private ModelDoc2 swMainModel;
         private Configuration swMainConfig;
@@ -225,12 +407,12 @@ namespace SwApiWrapper
         }
 
         // referenced configuration name
-        private string configName;
-        public string ConfigName
+        private string currentConfigName;
+        public string CurrentConfigName
         {
             get
             {
-                return configName;
+                return currentConfigName;
             }
             set
             {
@@ -261,8 +443,9 @@ namespace SwApiWrapper
 
         #region Initialization
 
-        public SwModelWrapper(SldWorks swApp, swDocumentTypes_e swDocType, ModelDoc2 swMainModel, string strConfigName)
+        public SwModelWrapper(SwApiWrapper swApi, SldWorks swApp, swDocumentTypes_e swDocType, ModelDoc2 swMainModel, string strConfigName)
         {
+            this.swApi = swApi;
             this.swApp = swApp;
             this.swMainModel = swMainModel;
 
@@ -284,12 +467,12 @@ namespace SwApiWrapper
             this.configNames.Sort();
             this.pathName = swMainModel.GetPathName();
             this.modelName = swMainModel.GetTitle();
-            this.configName = strConfigName;
+            this.currentConfigName = strConfigName;
         }
 
         private void SetConfigName(string configName)
         {
-            if (configName == this.configName || configName == "")
+            if (configName == this.currentConfigName || configName == "")
                 return;
             if (!configNames.Contains(configName))
             {
@@ -297,100 +480,194 @@ namespace SwApiWrapper
                 throw new Exception(strExcept);
             }
             swMainConfig = (Configuration)swMainModel.GetConfigurationByName(configName);
-            this.configName = configName;
+            this.currentConfigName = configName;
         }
         #endregion
 
         #region Custom Properties
-        public SwCustProp GetCustProp(string configName, bool withImage = false, bool merge = false)
+
+        public static object GetPropDefaultValue(string value, string type)
         {
-            if (configName == "")
-                return GetCustProp(withImage: withImage, fileLevel: true, merge: merge);
-            SetConfigName(configName);
-            return GetCustProp(withImage: withImage, merge: merge);
+            if (value == "" && type == "System.String")
+                return DBNull.Value;
+            else if (value == "" && type == "System.Boolean")
+                return false;
+            else if (value == "" && type == "System.Int32")
+                return 0;
+            else if (value == "" && type == "System.Decimal")
+                return 0.0;
+            else
+            {
+                return Convert.ChangeType(value, Type.GetType(type));
+            }
         }
 
-        public SwCustProp GetCustProp(bool withImage = false, bool fileLevel = false, bool merge = false)
+        private bool CheckPropDefaultValue(object value, string type)
         {
+            if (type == "System.String" && value.ToString() == "")
+                return true;
+            else if (type == "System.Boolean" && !(bool)value)
+                return true;
+            else if (type == "System.Int32" && (int)value == 0)
+                return true;
+            else if (type == "System.Decimal" && (Decimal)value == 0.0M)
+                return true;
+            else
+                return false;
+        }
+
+        public DataRow GetCustomProp(string configName, bool withImage = false, bool merge = false)
+        {
+            DataRow dr = propScaffold.MainRow;
+
+            // Return an empty DataRow if the config name doesn't exist in this model
+            if (configName != "" && !configNames.Contains(configName))
+                return dr;
+
             // Get property manager for this config
             CustomPropertyManager swCustPropMgr = (CustomPropertyManager)swModelDocExt.get_CustomPropertyManager(configName);
-
-            // Get property manager for file-system-level (name of standard config = "")
             CustomPropertyManager swAltCustPropMgr = (CustomPropertyManager)swModelDocExt.get_CustomPropertyManager("");
+            string[] nameArray = swCustPropMgr.GetNames();
+            List<string> propNames = new List<string>();
+            if (nameArray != null)
+                propNames.AddRange(swCustPropMgr.GetNames());
 
-            // Init a custom property container
-            SwCustProp prop = new SwCustProp();
-            prop.PropertyValues["filename"] = pathName;
-            prop.PropertyValues["configname"] = configName;
-            prop.PropertyValues["PlaceHoldFlag"] = 0;
-            prop.PropertyValues["ShowChildren"] = swMainConfig.ShowChildComponentsInBOM ? 1 : 0;
+            dr["filename"] = pathName;
+            dr["configname"] = configName;
+            dr["PlaceHoldFlag"] = false;
+            dr["ShowChildren"] = swMainConfig.ShowChildComponentsInBOM;
 
-            // Get SolidWorks custom properties
+            // Get custom properties from specific configuration
+            // Get the file level properties when the config name is an empty string (i.e. "")
             string strVal;
             string strResolved;
-            foreach (string strPropName in prop.PropNames)
+            foreach (DataRow drField in propScaffold.FieldDefs.Select("sw_prop is not null"))
             {
-                if (fileLevel)
-                    swAltCustPropMgr.Get4(strPropName, false, out strVal, out strResolved);
-                else
-                    swCustPropMgr.Get4(strPropName, false, out strVal, out strResolved);
+                string propName = drField["sw_prop"].ToString();
+                string fieldName = drField["field"].ToString();
+                string typeName = drField["dt_type"].ToString();
+                swCustPropMgr.Get4(propName, false, out strVal, out strResolved);
                 strResolved = strResolved.Trim();
-                if (merge && (strResolved == null || strResolved == ""))
+                dr[fieldName] = GetPropDefaultValue(strResolved, typeName);
+
+                // If merging config specific properties with the file level properties
+                if (merge && configName != "" && !propNames.Contains(propName))
                 {
-                    swAltCustPropMgr.Get4(strPropName, false, out strVal, out strResolved);
+                    swAltCustPropMgr.Get4(propName, false, out strVal, out strResolved);
                     strResolved = strResolved.Trim();
+                    dr[fieldName] = GetPropDefaultValue(strResolved, typeName);
                 }
-                prop.PropertyValues[strPropName] = strResolved;
             }
 
             // Get model image
-            // swIsometricView = 7
-            if (withImage)
-                prop.PropertyValues["Image"] = SwCustProp.ImageToByteArray(GetIsometricImage());
-
-            return prop;
-
-        }
-
-        public List<SwCustProp> GetConfigsCustProps()
-        {
-            List<SwCustProp> props = new List<SwCustProp>();
-
-            // Get file level custom properties
-            props.Add(GetCustProp(fileLevel: true));
-
-            // Get configuration custom properties
-            foreach (string configName in this.configNames)
+            // The default is swIsometricView = 7
+            // Only get an image if the part is measured in discreet (non-continuous) units
+            propScaffold.UomMapping.TryGetValue(dr["Uom"].ToString(), out string matchedUom);
+            if (withImage && matchedUom == "EA")
             {
-                props.Add(GetCustProp(configName: configName));
+                byte[] bytes = PropertyScaffold.ImageToByteArray(GetIsometricImage());
+                string imageString = Convert.ToBase64String(bytes);
+                dr["Image"] = imageString;
             }
-            return props;
+
+            // Get sheet metal properties
+            if (swMainModel.GetType() == (int)swDocumentTypes_e.swDocPART && IsSheetMetal())
+            {
+                Feature cutList = GetUpdatedCutList();
+
+                if (cutList != null)
+                {
+                    // Get sheet metal properties
+                    //Feature cutList = swMainModel.SelectionManager.GetSelectedObject6(1, 0);
+                    CustomPropertyManager cutPropMgr = cutList.CustomPropertyManager;
+                    List<string> names = new List<string>(cutPropMgr.GetNames());
+                    string valOut; string resolvedValOut; decimal decimalValOut; int intValOut; bool wasResolved;
+                    cutPropMgr.Get5("Sheet Metal Thickness", false, out valOut, out resolvedValOut, out wasResolved);
+                    Decimal.TryParse(resolvedValOut, out decimal sheetThickness);
+                    if (names.Contains("Sheet Metal Thickness") && sheetThickness != 0.0M)
+                    {
+                        cutPropMgr.Get5("Cutting Length-Outer", false, out valOut, out resolvedValOut, out wasResolved);
+                        Decimal.TryParse(resolvedValOut, out decimalValOut);
+                        dr["CuttingLengthOuter"] = Decimal.Round(decimalValOut, 2);
+
+                        cutPropMgr.Get5("Cutting Length-Inner", false, out valOut, out resolvedValOut, out wasResolved);
+                        Decimal.TryParse(resolvedValOut, out decimalValOut);
+                        dr["CuttingLengthInner"] = Decimal.Round(decimalValOut, 2);
+
+                        cutPropMgr.Get5("Cut Outs", false, out valOut, out resolvedValOut, out wasResolved);
+                        int.TryParse(resolvedValOut, out intValOut);
+                        dr["CutOutCount"] = intValOut;
+
+                        cutPropMgr.Get5("Bends", false, out valOut, out resolvedValOut, out wasResolved);
+                        int.TryParse(resolvedValOut, out intValOut);
+                        dr["BendCount"] = intValOut;
+
+                        Decimal mult = AZI_SWCustomProperties.Properties.AppSettings.Default.AreaFactor;
+                        cutPropMgr.Get5("Bounding Box Length", false, out valOut, out resolvedValOut, out wasResolved);
+                        Decimal.TryParse(resolvedValOut, out decimal boxLength);
+                        cutPropMgr.Get5("Bounding Box Width", false, out valOut, out resolvedValOut, out wasResolved);
+                        Decimal.TryParse(resolvedValOut, out decimal boxWidth);
+                        Decimal qty = Math.Ceiling((boxLength + mult * sheetThickness) * (boxWidth + mult * sheetThickness));
+                        dr["ChildQty"] = Decimal.Round(qty, 2);
+                    }
+                }
+            }
+
+            return dr;
         }
 
-        public string GetProductCode()
+        public DataTable GetCustomProps(string configName = null, bool withImage = false, bool merge = false)
         {
-            // Get and merge the current configuration and the file system level custom properties
-            SwCustProp configProp = GetCustProp(merge: true);
-            string partNum = (string)configProp.PropertyValues["PartNum"];
-            string revision = (string)configProp.PropertyValues["Revision"];
-            if (partNum == null || partNum == "")
-                return null;
-            if (revision == null || revision == "")
-                revision = "-0";
-            return partNum + "." + revision;
+            DataTable dt = propScaffold.MainTable;
+            dt.TableName = "mainProps";
+            if (configName == null)
+            {
+                dt.ImportRow(GetCustomProp(configName: "", withImage: withImage, merge: merge));
+                foreach (string config in this.configNames)
+                    dt.ImportRow(GetCustomProp(configName: config, withImage: withImage, merge: merge));
+            }
+            else if (configName == "" || configNames.Contains(configName))
+                // Only try to get a DataRow if the config name exists in this model
+                dt.ImportRow(GetCustomProp(configName, withImage: withImage, merge: merge));
+            return dt;
         }
 
-        public void WriteCustProp(SwCustProp props, string thisConfigName)
+        public void WriteCustomProp(DataRow dr)
         {
+            string thisConfigName = (string)dr["configname"];
+            if (thisConfigName != "" && !configNames.Contains(thisConfigName))
+            {
+                string strExcept = String.Format("Config name {0} is not in this model", thisConfigName);
+                throw new Exception(strExcept);
+            }
             CustomPropertyManager swCustPropMgr = (CustomPropertyManager)swModelDocExt.get_CustomPropertyManager(thisConfigName);
 
-            // We always store custom properties as text (i.e. swCustomInfoType_e.swCustomInfoText)
-            foreach (string propName in props.PropNames)
-                swCustPropMgr.Add3(
-                    propName,
-                    (int)swCustomInfoType_e.swCustomInfoText,
-                    props.PropertyValues[propName].ToString(),
-                    (int)swCustomPropertyAddOption_e.swCustomPropertyDeleteAndAdd);
+            // Get existing property names
+            string[] nameArray = swCustPropMgr.GetNames();
+            List<string> propNames = new List<string>();
+            if (nameArray != null)
+                propNames.AddRange(swCustPropMgr.GetNames());
+
+            // Check for a part number
+            bool hasPartNum = dr["PartNum"].ToString() != "";
+
+            // So far, we always store custom properties as text (i.e. swCustomInfoType_e.swCustomInfoText)
+            foreach (DataRow drField in propScaffold.FieldDefs.Select("sw_prop is not null"))
+            {
+                string propName = drField["sw_prop"].ToString();
+                string fieldName = drField["field"].ToString();
+                string typeName = drField["dt_type"].ToString();
+                if (CheckPropDefaultValue(dr[fieldName], typeName))
+                    // Remove the custom property
+                    swCustPropMgr.Delete2(propName);
+                else
+                    // Add the custom property
+                    swCustPropMgr.Add3(
+                        propName,
+                        propScaffold.PropTypes[propName],
+                        dr[fieldName].ToString(),
+                        (int)swCustomPropertyAddOption_e.swCustomPropertyDeleteAndAdd);
+            }
 
             swMainModel.SetSaveFlag();
         }
@@ -645,6 +922,57 @@ namespace SwApiWrapper
 
         #endregion
 
+        private bool IsSheetMetal()
+        {
+            // Check if part is sheet metal
+            PartDoc swPartDoc = (PartDoc)swMainModel;
+            object[] bodies = (object[])swPartDoc.GetBodies2((int)swBodyType_e.swSolidBody, true);
+            if (bodies == null)
+                return false;
+            foreach (Body2 body in bodies)
+                if (body.IsSheetMetal())
+                    return true;
+            return false;
+
+            // Check if part is sheet metal
+            //Feature swFeat = (Feature)swMainModel.FirstFeature();
+            //bool isSheetMetal = false;
+            //while (swFeat != null)
+            //{
+            //    if (swFeat.GetTypeName2() == "SheetMetal")
+            //    {
+            //        isSheetMetal = true;
+            //        break;
+            //    }
+            //    swFeat = swFeat.GetNextFeature();
+            //}
+            //return isSheetMetal;
+        }
+
+        private Feature GetUpdatedCutList()
+        {
+            Feature swFeat = (Feature)swMainModel.FirstFeature();
+            while (swFeat != null)
+            {
+                if (swFeat.GetTypeName2() == "SolidBodyFolder")
+                {
+                    BodyFolder swBodyFolder = swFeat.GetSpecificFeature2();
+                    swBodyFolder.SetAutomaticCutList(true);
+                    swBodyFolder.SetAutomaticUpdate(true);
+                    Feature cutList = swFeat.GetFirstSubFeature();
+                    while (cutList != null)
+                    {
+                        if (cutList.GetTypeName2() == "CutListFolder")
+                            return cutList;
+                        cutList = cutList.GetNextSubFeature();
+                    }
+                    return null;
+                }
+                swFeat = swFeat.GetNextFeature();
+            }
+            return null;
+        }
+
         public void ResolveAllComps()
         {
             swMainAssembly.ResolveAllLightWeightComponents(false);
@@ -652,12 +980,13 @@ namespace SwApiWrapper
 
         public SwComponentWrapper GetRootComponentWrapper()
         {
-            return new SwComponentWrapper(swApp, (Component2)swMainConfig.GetRootComponent());
+            return new SwComponentWrapper(swApi, swApp, (Component2)swMainConfig.GetRootComponent());
         }
     }
 
     public class SwComponentWrapper
     {
+        private SwApiWrapper swApi;
         private SldWorks swApp;
         private Component2 swComp;
         public bool Suppressed
@@ -699,7 +1028,7 @@ namespace SwApiWrapper
             }
         }
 
-        public SwComponentWrapper(SldWorks swApp, Component2 SwCompWrap)
+        public SwComponentWrapper(SwApiWrapper swApi, SldWorks swApp, Component2 SwCompWrap)
         {
             this.swApp = swApp;
             this.swComp = SwCompWrap;
@@ -708,13 +1037,13 @@ namespace SwApiWrapper
         public SwModelWrapper GetModelWrapper()
         {
             ModelDoc2 swModel = swComp.GetModelDoc2();
-            return new SwModelWrapper(swApp, (swDocumentTypes_e)swModel.GetType(), swModel, this.swComp.ReferencedConfiguration);
+            return new SwModelWrapper(swApi, swApp, (swDocumentTypes_e)swModel.GetType(), swModel, this.swComp.ReferencedConfiguration);
         }
 
         public SwModelWrapper GetModelWrapper(string configName)
         {
             ModelDoc2 swModel = swComp.GetModelDoc2();
-            return new SwModelWrapper(swApp, (swDocumentTypes_e)swModel.GetType(), swModel, configName);
+            return new SwModelWrapper(swApi, swApp, (swDocumentTypes_e)swModel.GetType(), swModel, configName);
         }
 
         public List<SwComponentWrapper> GetComponents()
@@ -724,280 +1053,9 @@ namespace SwApiWrapper
             List<SwComponentWrapper> comps = new List<SwComponentWrapper>();
             foreach (Component2 comp in aChildren)
             {
-                comps.Add(new SwComponentWrapper(swApp, comp));
+                comps.Add(new SwComponentWrapper(swApi, swApp, comp));
             }
             return comps;
-        }
-
-    }
-
-    public class SwCustProp
-    {
-        // Custom property types:
-        // * Text
-        // * Date
-        // * Number
-        // * Yes or No
-
-        #region Custom Property Data Structure
-
-        // ******************************************************************************
-        // ***                                                                        ***
-        // ***        The custom property for 'Units of Measure' was originally       ***
-        // ***        named 'Alternate Quantity'.  When we added a property for       ***
-        // ***        tracking alternate quantity values (double precision            ***
-        // ***        numbers), we didn't want to go back and change the custom       ***
-        // ***        properties in every part file.                                  ***
-        // ***        As a work around:                                               ***
-        // ***            -we labeled the 'Alternate Quantity' text field 'UOM'       ***
-        // ***            -we are writing the units of measure to the                 ***
-        // ***             'Alternate Quantity' custom property                       ***
-        // ***            -we labeled the 'UOM' text field 'Alternate Quantity'       ***
-        // ***            -we are writing the alternate quantity value to the         ***
-        // ***             'UOM' custom property                                      ***
-        // ***                                                                        ***
-        // ******************************************************************************
-        private readonly List<string> propNames = new List<string>(){
-            "AltQty",
-            "PartNum",
-            "Description",
-            "Designed By",
-            "Date1",
-            "Type",
-            "UOM",
-            "Eng Approval",
-            "Eng Appr Date",
-            "Mfg Approval",
-            "Mfg Appr Date",
-            "QA Approval",
-            "QA Appr Date",
-            "Purch Approval",
-            "Purch Appr Date",
-            "Material",
-            "Finish",
-            "Coating",
-            "Notes",
-            "Revision",
-            "ECO",
-            "EcoRevs",
-            "Zone",
-            "EcoDescription",
-            "Date2",
-            "EcoChk",
-            "P_M",
-            "MaterialPn",
-            "RouteTemplate",
-            "PurchFlag",
-        };
-        public List<string> PropNames
-        {
-            get
-            {
-                return propNames;
-            }
-        }
-
-        private readonly List<string> fieldNames = new List<string>(){
-            "Uom",
-            "PartNum",
-            "Description",
-            "DesignedBy",
-            "DrawDate",
-            "Type",
-            "AltQty",
-            "EngApproval",
-            "EngApprDate",
-            "MfgApproval",
-            "MfgApprDate",
-            "QaApproval",
-            "QaApprDate",
-            "PurchApproval",
-            "PurchApprDate",
-            "Material",
-            "Finish",
-            "Coating",
-            "Notes",
-            "Revision",
-            "Ecos",
-            "EcoRevs",
-            "Zone",
-            "EcoDescriptions",
-            "EcoDates",
-            "EcoChks",
-            "Catalog",
-            "MaterialPn",
-            "RouteTemplate",
-            "PurchFlag",
-        };
-        public List<string> FieldNames
-        {
-            get
-            {
-                return fieldNames;
-            }
-        }
-
-        private readonly Dictionary<string, int> propTypes = new Dictionary<string, int>(){
-            { "AltQty", (int)swCustomInfoType_e.swCustomInfoText },
-            { "PartNum", (int)swCustomInfoType_e.swCustomInfoText },
-            { "Description", (int)swCustomInfoType_e.swCustomInfoText },
-            { "Designed By", (int)swCustomInfoType_e.swCustomInfoText },
-            { "Date1", (int)swCustomInfoType_e.swCustomInfoText },
-            { "Type", (int)swCustomInfoType_e.swCustomInfoText },
-            { "UOM", (int)swCustomInfoType_e.swCustomInfoText },
-            { "Eng Approval", (int)swCustomInfoType_e.swCustomInfoText },
-            { "Eng Appr Date", (int)swCustomInfoType_e.swCustomInfoText },
-            { "Mfg Approval", (int)swCustomInfoType_e.swCustomInfoText },
-            { "Mfg Appr Date", (int)swCustomInfoType_e.swCustomInfoText },
-            { "QA Approval", (int)swCustomInfoType_e.swCustomInfoText },
-            { "QA Appr Date", (int)swCustomInfoType_e.swCustomInfoText },
-            { "Purch Approval", (int)swCustomInfoType_e.swCustomInfoText },
-            { "Purch Appr Date", (int)swCustomInfoType_e.swCustomInfoText },
-            { "Material", (int)swCustomInfoType_e.swCustomInfoText },
-            { "Finish", (int)swCustomInfoType_e.swCustomInfoText },
-            { "Coating", (int)swCustomInfoType_e.swCustomInfoText },
-            { "Notes", (int)swCustomInfoType_e.swCustomInfoText },
-            { "Revision", (int)swCustomInfoType_e.swCustomInfoText },
-            { "ECO", (int)swCustomInfoType_e.swCustomInfoText },
-            { "EcoRevs", (int)swCustomInfoType_e.swCustomInfoText },
-            { "Zone", (int)swCustomInfoType_e.swCustomInfoText },
-            { "EcoDescription", (int)swCustomInfoType_e.swCustomInfoText },
-            { "Date2", (int)swCustomInfoType_e.swCustomInfoText },
-            { "EcoChk", (int)swCustomInfoType_e.swCustomInfoText },
-            { "P_M", (int)swCustomInfoType_e.swCustomInfoText },
-            { "MaterialPn", (int)swCustomInfoType_e.swCustomInfoText },
-            { "RouteTemplate", (int)swCustomInfoType_e.swCustomInfoText },
-            { "PurchFlag", (int)swCustomInfoType_e.swCustomInfoText },
-        };
-        public Dictionary<string, int> PropTypes
-        {
-            get
-            {
-                return propTypes;
-            }
-        }
-
-        private readonly List<string> otherFieldNames = new List<string>(){
-            "filename",
-            "configname",
-            "PlaceHoldFlag",
-            "ShowChildren",
-            "Image",
-            "CuttingLengthOuter",
-            "CuttingLengthInner",
-            "CutOutCount",
-            "BendCount",
-        };
-        public List<string> OtherFieldNames
-        {
-            get
-            {
-                return otherFieldNames;
-            }
-        }
-
-        #endregion
-
-        private Dictionary<string, string> dictPropField = new Dictionary<string, string>();
-        public Dictionary<string, string> PropFieldMap
-        {
-            get
-            {
-                return dictPropField;
-            }
-        }
-
-        private Dictionary<string, string> dictFieldProp = new Dictionary<string, string>();
-        public Dictionary<string, string> FieldPropMap
-        {
-            get
-            {
-                return dictFieldProp;
-            }
-        }
-
-        private Dictionary<string, Object> dictPropValues = new Dictionary<string, Object>();
-        public Dictionary<string, Object> PropertyValues
-        {
-            get
-            {
-                return dictPropValues;
-            }
-            set
-            {
-                dictPropValues = value;
-            }
-        }
-
-        private Dictionary<string, Object> dictFieldValues = new Dictionary<string, Object>();
-        public Dictionary<string, Object> FieldValues
-        {
-            get
-            {
-                return MapFieldValues();
-            }
-        }
-
-        public SwCustProp()
-        {
-            // Map SolidWorks custom property names to DB field names
-            foreach (string key in propNames)
-                dictPropField.Add(key, fieldNames[propNames.IndexOf(key)]);
-
-            // Map DB field names to SolidWorks custom property names
-            foreach (string key in fieldNames)
-                dictFieldProp.Add(key, propNames[fieldNames.IndexOf(key)]);
-
-            // Create dictionary of null values by property name
-            foreach (string key in propNames)
-                dictPropValues.Add(key, null);
-
-            // Add other property keys
-            foreach (string key in otherFieldNames)
-                dictPropValues.Add(key, null);
-        }
-
-        private Dictionary<string, Object> MapFieldValues()
-        {
-            Dictionary<string, Object> dictFieldValues = new Dictionary<string, Object>();
-            foreach (string key in propNames)
-                dictFieldValues.Add(dictPropField[key], dictPropValues[key]);
-            foreach (string key in otherFieldNames)
-                dictFieldValues.Add(key, dictPropValues[key]);
-            return dictFieldValues;
-        }
-
-        public void UpdateFieldValue(string fieldName, Object fieldValue)
-        {
-            dictPropValues[dictFieldProp[fieldName]] = fieldValue;
-        }
-
-        public static byte[] ImageToByteArray(Bitmap bitmapIn)
-        {
-            Image imageIn = (Image)bitmapIn;
-            if (imageIn == null) return null;
-            using (MemoryStream ms = new MemoryStream())
-            {
-                try
-                {
-                    imageIn.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
-                    return ms.ToArray();
-                }
-                catch
-                {
-                    return null;
-                }
-            }
-        }
-
-        public static Image ByteArrayToImage(byte[] byteArrayIn)
-        {
-            if (byteArrayIn == null) return null;
-            using (MemoryStream ms = new MemoryStream(byteArrayIn))
-            {
-                Image returnImage = Image.FromStream(ms);
-                return returnImage;
-            }
         }
 
     }

@@ -16,8 +16,10 @@ using SolidWorks.Interop.swdocumentmgr;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 
-using SwApiWrapper;
-using OdooClient;
+using SwApiAbstraction;
+using PropertyDataScaffold;
+using AZI_SWCustomProperties;
+using OdooObjects;
 
 namespace ImageForm
 {
@@ -75,10 +77,10 @@ namespace ImageForm
 
         private void GetOdooImage()
         {
-            if (this.oProd != null && this.oProd.TemplateRecord["image"] != null)
+            if (this.oProd.HasProduct && !this.oProd.Table.Rows[0].IsNull("OdooImage"))
             {
-                byte[] bytes = Convert.FromBase64String((string)this.oProd.TemplateRecord["image"]);
-                pbOdooImage.Image = SwCustProp.ByteArrayToImage(bytes);
+                byte[] bytes = Convert.FromBase64String((string)this.oProd.Table.Rows[0]["OdooImage"]);
+                pbOdooImage.Image = PropertyScaffold.ByteArrayToImage(bytes);
                 cmdUpload.Text = "Replace";
             }
         }
@@ -113,13 +115,13 @@ namespace ImageForm
                 MessageBox.Show("No Odoo product has been loaded");
                 return;
             }
-            byte[] byteArray = SwCustProp.ImageToByteArray((Bitmap)pbModelImage.Image);
+            byte[] byteArray = PropertyScaffold.ImageToByteArray((Bitmap)pbModelImage.Image);
             string base64String = Convert.ToBase64String(byteArray);
             Dictionary<string, Object> values = new Dictionary<string, Object>()
             {
                 { "image", base64String },
             };
-            oProd.Write(values);
+            oProd.RawWrite(values);
             GetOdooImage();
         }
 
