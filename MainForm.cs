@@ -191,6 +191,7 @@ namespace AZI_SWCustomProperties
                 "{0}.{1}",
                 this.mainProps.DefaultView[0].Row["PartNum"].ToString(),
                 this.mainProps.DefaultView[0].Row["Revision"].ToString());
+            productCode = productCode == "." ? "" : productCode;
             SwProductCode.Invoke((MethodInvoker)(() => SwProductCode.Text = productCode));
             PopulateConfigs();
             return true;
@@ -332,8 +333,10 @@ namespace AZI_SWCustomProperties
 
         private DataRow[] GetRowChanges(DataTable current, DataTable original)
         {
-            // the first row is the original
-            // the second row is the current
+            /// Compares rows in order until it finds a pair that doesn't match.
+            /// Then it returns those 2 rows
+            /// The first row is from the original DataTable
+            /// The second row is from the current DataTable
             DataTable changes = original.Clone();
             DataRow[] rows = new DataRow[2];
             for (int i = 0; i < current.Rows.Count; i++)
@@ -347,7 +350,20 @@ namespace AZI_SWCustomProperties
                         if (!currVals[r].Equals(origVals[r]))
                             return rows;
                 }
-            return rows;
+            return new DataRow[2];
+        }
+
+        private List<string> GetChangedColumns(DataRow current, DataRow original)
+        {
+            /// Returns a list of column names that have changed
+            List<string> colNames = new List<string>();
+            foreach (DataColumn col in current.Table.Columns)
+            {
+                string colName = col.ColumnName;
+                if (!current[colName].Equals(original[colName]))
+                    colNames.Add(colName);
+            }
+            return colNames;
         }
 
         private void AcceptColumnChanges(DataRow current, DataRow original, List<string> colAcceptNames)
@@ -621,7 +637,8 @@ namespace AZI_SWCustomProperties
                 return;
 
             string filter;
-            DataRow dr = this.mainProps.DefaultView[0].Row;
+            DataRow drMainCurr = this.mainProps.DefaultView[0].Row;
+            DataRow drMainOrig = this.origMainProps.DefaultView[0].Row;
             // Overwrite uninitialized Odoo fields from Odoo data
             // These fields are sourced from Odoo only
             // These chages should NOT dirty the props DataTable
@@ -637,12 +654,10 @@ namespace AZI_SWCustomProperties
             {
                 string fieldName = drField["field"].ToString();
                 object odooValue = odooProps.Rows[0][fieldName];
-                dr[fieldName] = odooValue;
+                drMainCurr[fieldName] = odooValue;
                 columnNames.Add(fieldName);
             }
-            string configName = mainProps.DefaultView[0].Row["configname"].ToString();
-            DataRow original = origMainProps.Select("configname='" + configName + "'")[0];
-            AcceptColumnChanges(current: this.mainProps.DefaultView[0].Row, original: original, colAcceptNames: columnNames);
+            AcceptColumnChanges(current: drMainCurr, original: drMainOrig, colAcceptNames: columnNames);
 
             // Overwrite SolidWorks data with data from Odoo
             // These Odoo field values take precedence over SolidWorks values
@@ -653,8 +668,8 @@ namespace AZI_SWCustomProperties
             {
                 string fieldName = drField["field"].ToString();
                 object odooValue = odooProps.Rows[0][fieldName];
-                if (odooValue != System.DBNull.Value && !odooValue.Equals(dr[fieldName]))
-                    dr[fieldName] = odooValue;
+                if (odooValue != System.DBNull.Value && !odooValue.Equals(drMainCurr[fieldName]))
+                    drMainCurr[fieldName] = odooValue;
             }
 
             // Overwrite empty SolidWorks data with data from Odoo
@@ -665,13 +680,15 @@ namespace AZI_SWCustomProperties
             {
                 string fieldName = drField["field"].ToString();
                 object odooValue = odooProps.Rows[0][fieldName];
-                if (dr.IsNull(fieldName) || dr[fieldName].ToString() == "")
-                    dr[fieldName] = odooValue;
+                if (drMainCurr.IsNull(fieldName) || drMainCurr[fieldName].ToString() == "")
+                    drMainCurr[fieldName] = odooValue;
             }
         }
 
         private void CorrectInvalidFields(DataRow dr)
         {
+            if (String.IsNullOrEmpty(SwProductCode.Text))
+                return;
             // Correct UOM
             scaffold.UomMapping.TryGetValue(dr["Uom"].ToString(), out string matchedUom);
             if (matchedUom != null)
@@ -815,7 +832,7 @@ namespace AZI_SWCustomProperties
                     "{0}.{1}",
                     this.mainProps.DefaultView[0].Row["PartNum"].ToString(),
                     this.mainProps.DefaultView[0].Row["Revision"].ToString());
-                SwProductCode.Text = productCode;
+                SwProductCode.Text = productCode == "." ? "" : productCode;
                 GetOdooProduct();
                 PullFromOdoo();
                 PushToOdoo();
@@ -921,9 +938,8 @@ namespace AZI_SWCustomProperties
                         //SetFieldToolTipList(fieldName, origOd: origValue, currOd: currValue);
                     }
                 }
-
-                RefreshToolTips();
             }
+            RefreshToolTips();
         }
 
         private void BtnSettings_Click(object sender, EventArgs e)
@@ -938,11 +954,13 @@ namespace AZI_SWCustomProperties
 
         private void BtnRefresh_Click(object sender, EventArgs e)
         {
-            DataRow[] changes = GetRowChanges(current: this.mainProps, original: this.origMainProps);
-            if (changes[0] != null)
+            bool hasChanges = HasRowChanges(current: this.mainProps, original: this.origMainProps);
+            if (hasChanges)
             {
+                DataRow[] changes = GetRowChanges(current: this.mainProps, original: this.origMainProps);
+                List<string> changedCols = GetChangedColumns(current: changes[1], original: changes[0]);
                 System.Windows.Forms.DialogResult result = MessageBox.Show(
-                    "Data has changed.  Do you want to discard changes?",
+                    "Data has changed in the following columns.  Do you want to discard changes?\r\n" + String.Join(", ", changedCols),
                     "Discard Changes",
                     MessageBoxButtons.OKCancel,
                     MessageBoxIcon.Warning);
@@ -993,24 +1011,30 @@ namespace AZI_SWCustomProperties
                 cboCurrentConfig.SelectedIndex = 0;
                 return;
             }
-            DataRow[] changes = GetRowChanges(current: this.mainProps, original: this.origMainProps);
             if (!formLoading)
             {
-                if (changes[0] != null)
+                bool hasChanges = HasRowChanges(current: this.mainProps, original: this.origMainProps);
+                if (hasChanges)
                 {
+                    DataRow[] changes = GetRowChanges(current: this.mainProps, original: this.origMainProps);
+                    List<string> changedCols = GetChangedColumns(current: changes[1], original: changes[0]);
                     System.Windows.Forms.DialogResult result = MessageBox.Show(
-                    "Data has changed.  Do you want to discard changes?",
-                    "Discard Changes",
-                    MessageBoxButtons.OKCancel,
-                    MessageBoxIcon.Warning);
+                        "Data has changed in the following columns.  Do you want to discard changes?\r\n" + String.Join(", ", changedCols),
+                        "Discard Changes",
+                        MessageBoxButtons.OKCancel,
+                        MessageBoxIcon.Warning);
                     if (result == System.Windows.Forms.DialogResult.Cancel)
                     {
                         cboCurrentConfig.SelectedIndex = previousConfigIndex;
                         return;
                     }
                     else
+                    {
                         //mainProps.RejectChanges();
+                        suspendChangeHandler = true;
                         RejectRowChanges(current: changes[1], original: changes[0]);
+                        suspendChangeHandler = false;
+                    }
                 }
             }
 
@@ -1025,7 +1049,7 @@ namespace AZI_SWCustomProperties
                 "{0}.{1}",
                 this.mainProps.DefaultView[0].Row["PartNum"].ToString(),
                 this.mainProps.DefaultView[0].Row["Revision"].ToString());
-            SwProductCode.Text = productCode;
+            SwProductCode.Text = productCode == "." ? "" : productCode;
 
             CorrectInvalidFields(mainProps.DefaultView[0].Row);
             GetOdooProduct();
@@ -1039,10 +1063,7 @@ namespace AZI_SWCustomProperties
             if (HasRowChanges(current: mainProps, original: origMainProps))
             {
                 DataRow[] changes = GetRowChanges(current: this.mainProps, original: this.origMainProps);
-                List<string> changedCols = new List<string>();
-                foreach (DataColumn col in changes[1].Table.Columns)
-                    if (!changes[1][col.ColumnName].Equals(changes[0][col.ColumnName]))
-                        changedCols.Add(col.ColumnName);
+                List<string> changedCols = GetChangedColumns(current: changes[1], original: changes[0]);
                 System.Windows.Forms.DialogResult result = MessageBox.Show(
                     "Data has changed in the following columns.  Do you want to discard changes?\r\n" + String.Join(", ", changedCols),
                     "Discard Changes",
@@ -1134,6 +1155,49 @@ namespace AZI_SWCustomProperties
                 string fieldType = drField["dt_type"].ToString();
                 mainProps.DefaultView[0][fieldName] = SwModelWrapper.GetPropDefaultValue("", fieldType);
             }
+
+            // Update everything
+            CorrectInvalidFields(mainProps.DefaultView[0].Row);
+            GetOdooProduct();
+            PullFromOdoo();
+            PushToOdoo();
+            UpdateChangeIndicators();
+        }
+
+        private void BtnCopyFrom_Click(object sender, EventArgs e)
+        {
+            // Get a list of configuration names
+            List<string> configNames = new List<string>(swMod.ConfigNames);
+            configNames.Insert(0, "");
+            string currentConfigName = ((ComboboxItem)cboCurrentConfig.SelectedItem).Value;
+            configNames.Remove(currentConfigName);
+
+            // Get configuration from which we will copy properties
+            string configName = null;
+            using (CopyFromSelect.CopyFromSelect form = new CopyFromSelect.CopyFromSelect(configNames))
+            {
+                var result = form.ShowDialog();
+                if (result == System.Windows.Forms.DialogResult.OK)
+                    configName = form.ConfigName;
+                else
+                    return;
+            }
+
+            // Copy SolidWorks custom properties from one row to another
+            DataRow drFrom = this.mainProps.Select(String.Format("configname='{0}'", configName))[0];
+            DataRow drTo = this.mainProps.DefaultView[0].Row;
+            foreach (DataRow drField in scaffold.FieldDefs.Select("sw_prop is not null"))
+            {
+                string fieldName = drField["field"].ToString();
+                drTo[fieldName] = drFrom[fieldName];
+            }
+
+            // Update everything
+            CorrectInvalidFields(mainProps.DefaultView[0].Row);
+            GetOdooProduct();
+            PullFromOdoo();
+            PushToOdoo();
+            UpdateChangeIndicators();
         }
     }
 

@@ -189,7 +189,7 @@
             this.Controls.Add(this.dgRawMaterial);
             this.Controls.Add(this.cboCode);
             this.Name = "RawMaterialSelect";
-            this.Text = "SwOdooTest";
+            this.Text = "Select Raw Material";
             ((System.ComponentModel.ISupportInitialize)(this.dsOdoo)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgRawMaterial)).EndInit();
             this.ResumeLayout(false);

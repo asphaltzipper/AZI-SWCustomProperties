@@ -29,15 +29,11 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
-            this.btnSettings = new System.Windows.Forms.ToolStripDropDownButton();
-            this.btnRefresh = new System.Windows.Forms.ToolStripDropDownButton();
-            this.btnBomScan = new System.Windows.Forms.ToolStripDropDownButton();
-            this.btnGetImage = new System.Windows.Forms.ToolStripDropDownButton();
             this.lblUserStatus = new System.Windows.Forms.ToolStripStatusLabel();
             this.cboCurrentConfig = new System.Windows.Forms.ComboBox();
             this.lblCurrentConfig = new System.Windows.Forms.Label();
@@ -148,6 +144,11 @@
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.OdooImage = new System.Windows.Forms.PictureBox();
             this.btnSearchRm = new System.Windows.Forms.Button();
+            this.btnSettings = new System.Windows.Forms.ToolStripDropDownButton();
+            this.btnRefresh = new System.Windows.Forms.ToolStripDropDownButton();
+            this.btnBomScan = new System.Windows.Forms.ToolStripDropDownButton();
+            this.btnGetImage = new System.Windows.Forms.ToolStripDropDownButton();
+            this.btnCopyFrom = new System.Windows.Forms.Button();
             this.statusStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgEcos)).BeginInit();
             this.cmsGeneric.SuspendLayout();
@@ -167,53 +168,6 @@
             this.statusStrip1.Size = new System.Drawing.Size(721, 24);
             this.statusStrip1.TabIndex = 0;
             this.statusStrip1.Text = "statusStrip1";
-            // 
-            // btnSettings
-            // 
-            this.btnSettings.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.btnSettings.Image = ((System.Drawing.Image)(resources.GetObject("btnSettings.Image")));
-            this.btnSettings.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.btnSettings.Name = "btnSettings";
-            this.btnSettings.ShowDropDownArrow = false;
-            this.btnSettings.Size = new System.Drawing.Size(20, 22);
-            this.btnSettings.Text = "Settings";
-            this.btnSettings.ToolTipText = "Settings";
-            this.btnSettings.Click += new System.EventHandler(this.BtnSettings_Click);
-            // 
-            // btnRefresh
-            // 
-            this.btnRefresh.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.btnRefresh.Image = ((System.Drawing.Image)(resources.GetObject("btnRefresh.Image")));
-            this.btnRefresh.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.btnRefresh.Name = "btnRefresh";
-            this.btnRefresh.ShowDropDownArrow = false;
-            this.btnRefresh.Size = new System.Drawing.Size(20, 22);
-            this.btnRefresh.Text = "Refresh";
-            this.btnRefresh.Click += new System.EventHandler(this.BtnRefresh_Click);
-            // 
-            // btnBomScan
-            // 
-            this.btnBomScan.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.btnBomScan.Image = ((System.Drawing.Image)(resources.GetObject("btnBomScan.Image")));
-            this.btnBomScan.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.btnBomScan.Name = "btnBomScan";
-            this.btnBomScan.ShowDropDownArrow = false;
-            this.btnBomScan.Size = new System.Drawing.Size(20, 22);
-            this.btnBomScan.Text = "toolStripDropDownButton1";
-            this.btnBomScan.ToolTipText = "BOM Scan";
-            this.btnBomScan.Click += new System.EventHandler(this.BtnBomScan_Click);
-            // 
-            // btnGetImage
-            // 
-            this.btnGetImage.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.btnGetImage.Image = ((System.Drawing.Image)(resources.GetObject("btnGetImage.Image")));
-            this.btnGetImage.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.btnGetImage.Name = "btnGetImage";
-            this.btnGetImage.ShowDropDownArrow = false;
-            this.btnGetImage.Size = new System.Drawing.Size(20, 22);
-            this.btnGetImage.Text = "toolStripDropDownButton1";
-            this.btnGetImage.ToolTipText = "Get Image";
-            this.btnGetImage.Click += new System.EventHandler(this.BtnGetImage_Click);
             // 
             // lblUserStatus
             // 
@@ -1326,12 +1280,72 @@
             this.btnSearchRm.UseVisualStyleBackColor = true;
             this.btnSearchRm.Click += new System.EventHandler(this.BtnSearchRm_Click);
             // 
+            // btnSettings
+            // 
+            this.btnSettings.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.btnSettings.Image = ((System.Drawing.Image)(resources.GetObject("btnSettings.Image")));
+            this.btnSettings.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.btnSettings.Name = "btnSettings";
+            this.btnSettings.ShowDropDownArrow = false;
+            this.btnSettings.Size = new System.Drawing.Size(20, 22);
+            this.btnSettings.Text = "Settings";
+            this.btnSettings.ToolTipText = "Settings";
+            this.btnSettings.Click += new System.EventHandler(this.BtnSettings_Click);
+            // 
+            // btnRefresh
+            // 
+            this.btnRefresh.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.btnRefresh.Image = ((System.Drawing.Image)(resources.GetObject("btnRefresh.Image")));
+            this.btnRefresh.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.btnRefresh.Name = "btnRefresh";
+            this.btnRefresh.ShowDropDownArrow = false;
+            this.btnRefresh.Size = new System.Drawing.Size(20, 22);
+            this.btnRefresh.Text = "Refresh";
+            this.btnRefresh.Click += new System.EventHandler(this.BtnRefresh_Click);
+            // 
+            // btnBomScan
+            // 
+            this.btnBomScan.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.btnBomScan.Image = ((System.Drawing.Image)(resources.GetObject("btnBomScan.Image")));
+            this.btnBomScan.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.btnBomScan.Name = "btnBomScan";
+            this.btnBomScan.ShowDropDownArrow = false;
+            this.btnBomScan.Size = new System.Drawing.Size(20, 22);
+            this.btnBomScan.Text = "toolStripDropDownButton1";
+            this.btnBomScan.ToolTipText = "BOM Scan";
+            this.btnBomScan.Click += new System.EventHandler(this.BtnBomScan_Click);
+            // 
+            // btnGetImage
+            // 
+            this.btnGetImage.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.btnGetImage.Image = ((System.Drawing.Image)(resources.GetObject("btnGetImage.Image")));
+            this.btnGetImage.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.btnGetImage.Name = "btnGetImage";
+            this.btnGetImage.ShowDropDownArrow = false;
+            this.btnGetImage.Size = new System.Drawing.Size(20, 22);
+            this.btnGetImage.Text = "toolStripDropDownButton1";
+            this.btnGetImage.ToolTipText = "Get Image";
+            this.btnGetImage.Click += new System.EventHandler(this.BtnGetImage_Click);
+            // 
+            // btnCopyFrom
+            // 
+            this.btnCopyFrom.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.btnCopyFrom.Location = new System.Drawing.Point(93, 764);
+            this.btnCopyFrom.Name = "btnCopyFrom";
+            this.btnCopyFrom.Size = new System.Drawing.Size(75, 23);
+            this.btnCopyFrom.TabIndex = 101;
+            this.btnCopyFrom.TabStop = false;
+            this.btnCopyFrom.Text = "Copy From";
+            this.btnCopyFrom.UseVisualStyleBackColor = true;
+            this.btnCopyFrom.Click += new System.EventHandler(this.BtnCopyFrom_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.btnCancel;
             this.ClientSize = new System.Drawing.Size(721, 814);
+            this.Controls.Add(this.btnCopyFrom);
             this.Controls.Add(this.DrawnDateChange);
             this.Controls.Add(this.DesignedDateChange);
             this.Controls.Add(this.EcoChksChange);
@@ -1570,6 +1584,7 @@
         private System.Windows.Forms.Label PartNumChange;
         private System.Windows.Forms.Label RevisionChange;
         private System.Windows.Forms.ToolTip toolTip1;
+        private System.Windows.Forms.Button btnCopyFrom;
     }
 }
 

@@ -156,6 +156,12 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
     <Compile Include="PropertyDataScaffold.cs" />
+    <Compile Include="CopyFromSelect.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="CopyFromSelect.Designer.cs">
+      <DependentUpon>CopyFromSelect.cs</DependentUpon>
+    </Compile>
     <Compile Include="RawMaterialSelect.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -200,6 +206,9 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
+    <EmbeddedResource Include="CopyFromSelect.resx">
+      <DependentUpon>CopyFromSelect.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="RawMaterialSelect.resx">
       <DependentUpon>RawMaterialSelect.cs</DependentUpon>
     </EmbeddedResource>
