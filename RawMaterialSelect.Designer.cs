@@ -53,7 +53,7 @@
             this.cboCode.Location = new System.Drawing.Point(55, 11);
             this.cboCode.Name = "cboCode";
             this.cboCode.Size = new System.Drawing.Size(57, 21);
-            this.cboCode.TabIndex = 17;
+            this.cboCode.TabIndex = 1;
             this.cboCode.TextChanged += new System.EventHandler(this.SearchBox_TextChanged);
             // 
             // dsOdoo
@@ -79,7 +79,7 @@
             this.dgRawMaterial.Name = "dgRawMaterial";
             this.dgRawMaterial.ReadOnly = true;
             this.dgRawMaterial.Size = new System.Drawing.Size(552, 353);
-            this.dgRawMaterial.TabIndex = 23;
+            this.dgRawMaterial.TabIndex = 5;
             this.dgRawMaterial.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.DgRawMaterial_CellContentClick);
             // 
             // id
@@ -145,7 +145,7 @@
             this.cboName.Location = new System.Drawing.Point(112, 11);
             this.cboName.Name = "cboName";
             this.cboName.Size = new System.Drawing.Size(60, 21);
-            this.cboName.TabIndex = 24;
+            this.cboName.TabIndex = 2;
             this.cboName.TextChanged += new System.EventHandler(this.SearchBox_TextChanged);
             // 
             // cboUom
@@ -154,7 +154,7 @@
             this.cboUom.Location = new System.Drawing.Point(172, 11);
             this.cboUom.Name = "cboUom";
             this.cboUom.Size = new System.Drawing.Size(57, 21);
-            this.cboUom.TabIndex = 25;
+            this.cboUom.TabIndex = 3;
             this.cboUom.TextChanged += new System.EventHandler(this.SearchBox_TextChanged);
             // 
             // cboCat
@@ -163,7 +163,7 @@
             this.cboCat.Location = new System.Drawing.Point(229, 11);
             this.cboCat.Name = "cboCat";
             this.cboCat.Size = new System.Drawing.Size(74, 21);
-            this.cboCat.TabIndex = 26;
+            this.cboCat.TabIndex = 4;
             this.cboCat.TextChanged += new System.EventHandler(this.SearchBox_TextChanged);
             // 
             // btnCancel
@@ -172,7 +172,7 @@
             this.btnCancel.Location = new System.Drawing.Point(491, 397);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(75, 23);
-            this.btnCancel.TabIndex = 27;
+            this.btnCancel.TabIndex = 6;
             this.btnCancel.Text = "Cancel";
             this.btnCancel.UseVisualStyleBackColor = true;
             this.btnCancel.Click += new System.EventHandler(this.BtnCancel_Click);

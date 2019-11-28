@@ -234,55 +234,51 @@ namespace AZI_SWCustomProperties
 
         #region Form Control Management
 
-        private int FindValueIndex(ComboBox box, string value)
+        private int FindValueIndex(ComboBox box, object value)
         {
             for (int i = 0; i < box.Items.Count; i++)
-                if (((ComboboxItem)box.Items[i]).Value == value)
+                if (((ComboboxItem)box.Items[i]).Value.ToString() == value.ToString())
                     return i;
             return -1;
         }
 
-        //public void LockAllControls(bool enableControl)
-        //{
-        //    foreach (Control thisControl in this.Controls)
-        //        thisControl.Enabled = enableControl;
-        //    btnApply.Enabled = enableControl;
-        //    btnApplyClose.Enabled = enableControl;
-        //}
+        public static Control FindFocusedControl(Control control)
+        {
+            var container = control as IContainerControl;
+            while (container != null)
+            {
+                control = container.ActiveControl;
+                container = control as IContainerControl;
+            }
+            return control;
+        }
 
-        //public static Control FindFocusedControl(Control control)
-        //{
-        //    var container = control as IContainerControl;
-        //    while (container != null)
-        //    {
-        //        control = container.ActiveControl;
-        //        container = control as IContainerControl;
-        //    }
-        //    return control;
-        //}
-
-        //protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
-        //{
-        //    // Insert the current date on CTRL+;
-        //    if (keyData == (Keys.Control | Keys.OemSemicolon))
-        //    {
-        //        var focused = FindFocusedControl(this);
-        //        if (focused is TextBox)
-        //        {
-        //            int selectionIndex = ((TextBox)focused).SelectionStart;
-        //            int selectionLength = ((TextBox)focused).SelectionLength;
-        //            string allText = ((TextBox)focused).Text;
-        //            string newText = allText.Remove(selectionIndex, selectionLength);
-        //            newText = newText.Insert(selectionIndex, DateTime.Today.ToShortDateString());
-        //            ((TextBox)focused).Text = newText;
-        //            ((TextBox)focused).SelectionStart = selectionIndex + DateTime.Today.ToShortDateString().Length;
-        //        }
-        //        else
-        //            focused.Text = DateTime.Today.ToShortDateString();
-        //        return true;
-        //    }
-        //    return base.ProcessCmdKey(ref msg, keyData);
-        //}
+        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+        {
+            // Insert the current date on CTRL+;
+            if (keyData == (Keys.Control | Keys.OemSemicolon))
+            {
+                var focused = FindFocusedControl(this);
+                if (focused is TextBox)
+                {
+                    int selectionIndex = ((TextBox)focused).SelectionStart;
+                    int selectionLength = ((TextBox)focused).SelectionLength;
+                    string allText = ((TextBox)focused).Text;
+                    string newText = allText.Remove(selectionIndex, selectionLength);
+                    newText = newText.Insert(selectionIndex, DateTime.Today.ToShortDateString());
+                    ((TextBox)focused).Text = newText;
+                    ((TextBox)focused).SelectionStart = selectionIndex + DateTime.Today.ToShortDateString().Length;
+                }
+                else
+                    focused.Text = DateTime.Today.ToShortDateString();
+                return true;
+            }
+            if (keyData == Keys.F5)
+            {
+                this.BtnRefresh_Click(null, EventArgs.Empty);
+            }
+            return base.ProcessCmdKey(ref msg, keyData);
+        }
 
         #endregion
 
@@ -418,9 +414,12 @@ namespace AZI_SWCustomProperties
             MaterialPn.DisplayMember = "Text";
             rawMaterials = oTools.GetRawMaterials();
             List<ComboboxItem> itemsRm = new List<ComboboxItem>();
-            itemsRm.Add(new ComboboxItem("", ""));
-            foreach (DataRow dr in rawMaterials.Select("", "default_code"))
-                itemsRm.Add(new ComboboxItem(dr["default_code"].ToString(), dr["default_code"].ToString()));
+            itemsRm.Add(new ComboboxItem("", DBNull.Value));
+            foreach (DataRow dr in rawMaterials.Select("", sort: "default_code"))
+            {
+                string displayName = String.Format("[{0}] {1}", dr["default_code"], dr["name"]);
+                itemsRm.Add(new ComboboxItem(displayName, dr["default_code"].ToString()));
+            }
             MaterialPn.DataSource = itemsRm;
 
             // UOM
@@ -468,7 +467,7 @@ namespace AZI_SWCustomProperties
             Coating.ValueMember = "Value";
             Coating.DisplayMember = "Text";
             List<ComboboxItem> itemsCoating = new List<ComboboxItem>();
-            itemsCoating.Add(new ComboboxItem("", ""));
+            itemsCoating.Add(new ComboboxItem("", DBNull.Value));
             foreach (string item in oTools.GetCoatings())
                 itemsCoating.Add(new ComboboxItem(item, item));
             Coating.DataSource = itemsCoating;
@@ -661,26 +660,39 @@ namespace AZI_SWCustomProperties
 
             // Overwrite SolidWorks data with data from Odoo
             // These Odoo field values take precedence over SolidWorks values
-            // If the Odoo value is DBNull, don't overwrite
+            // If the Odoo value is not set (null strings, 0 integers, 0.0 floats), don't overwrite
             // These changes will dirty the props data table and indicate unsaved changes in the interface
+            // Since we never use boolean values in custom properties, we won't check for those (they can't be null anyway, for binding reasons)
             filter = "sw_prop is not null and pull_odoo=1";
             foreach (DataRow drField in scaffold.FieldDefs.Select(filter))
             {
                 string fieldName = drField["field"].ToString();
+                string fieldType = drField["dt_type"].ToString();
                 object odooValue = odooProps.Rows[0][fieldName];
-                if (odooValue != System.DBNull.Value && !odooValue.Equals(drMainCurr[fieldName]))
-                    drMainCurr[fieldName] = odooValue;
+                if (
+                    (fieldType == "System.String" && odooValue.ToString() != "") ||
+                    (fieldType == "System.Int32" && (int)odooValue != 0) ||
+                    (fieldType == "System.Decimal" && (decimal)odooValue != 0.0M)
+                )
+                    if (odooValue != System.DBNull.Value && !odooValue.Equals(drMainCurr[fieldName]))
+                        drMainCurr[fieldName] = odooValue;
             }
 
             // Overwrite empty SolidWorks data with data from Odoo
             // These Odoo field values take precedence over empty SolidWorks values
             // These changes will dirty the props data table and indicate unsaved changes in the interface
+            // Since we never use boolean values in custom properties, we won't check for those (they can't be null anyway, for binding reasons)
             filter = "sw_prop is not null and conditional_odoo_pull=1";
             foreach (DataRow drField in scaffold.FieldDefs.Select(filter))
             {
                 string fieldName = drField["field"].ToString();
+                string fieldType = drField["dt_type"].ToString();
                 object odooValue = odooProps.Rows[0][fieldName];
-                if (drMainCurr.IsNull(fieldName) || drMainCurr[fieldName].ToString() == "")
+                if (
+                    (fieldType == "System.String" && drMainCurr[fieldName].ToString() == "") ||
+                    (fieldType == "System.Int32" && (int)drMainCurr[fieldName] == 0) ||
+                    (fieldType == "System.Decimal" && (decimal)drMainCurr[fieldName] == 0.0M)
+                )
                     drMainCurr[fieldName] = odooValue;
             }
         }
@@ -703,7 +715,7 @@ namespace AZI_SWCustomProperties
             if (matchedCoating != null)
                 dr["Coating"] = matchedCoating;
             // Correct finish
-            scaffold.CoatingMapping.TryGetValue(dr["Coating"].ToString(), out string matchedFinish);
+            scaffold.CoatingMapping.TryGetValue(dr["Finish"].ToString(), out string matchedFinish);
             if (matchedFinish != null)
                 dr["Finish"] = matchedFinish;
             // Check for valid values in select boxes
@@ -715,8 +727,7 @@ namespace AZI_SWCustomProperties
                     if (this.Controls[fieldName] is ComboBox)
                     {
                         ComboBox combo = (ComboBox)this.Controls[fieldName];
-                        string dataValue = dr[fieldName].ToString();
-                        if (FindValueIndex(combo, dataValue) == -1)
+                        if (FindValueIndex(combo, dr[fieldName]) == -1)
                             dr[fieldName] = DBNull.Value;
                     }
                 }
@@ -969,16 +980,16 @@ namespace AZI_SWCustomProperties
             }
 
             this.Enabled = false;
+            cboCurrentConfig.SelectedIndex = -1;
             SolidWorksConnect();
             this.Text = "SW Properties: " + swMod.ModelName;
-            GetOdooProduct();
-            PullFromOdoo();
-            BindData();
-            PushToOdoo();
-            //CboCurrentConfig_SelectedIndexChanged(sender, e);
-            cboCurrentConfig.SelectedIndex = -1;
-            this.Refresh();
+            this.mainProps.ColumnChanged += new DataColumnChangeEventHandler(Props_Changed);
+            cboCurrentConfig.SelectedIndex = 0;
             this.Enabled = true;
+            this.Refresh();
+            //foreach (Control ctl in this.Controls)
+            //    ctl.ResetBindings();
+            BindData();
         }
         
         private void BtnBomScan_Click(object sender, EventArgs e)
@@ -1004,13 +1015,17 @@ namespace AZI_SWCustomProperties
             //CurrencyManager cm = (CurrencyManager)this.BindingContext[props];
             //cm.Position = 0;
 
-            if (cboCurrentConfig.SelectedIndex == previousConfigIndex)
-                return;
+            //if (cboCurrentConfig.SelectedIndex == previousConfigIndex)
+            //    return;
+            //if (cboCurrentConfig.SelectedIndex == -1)
+            //{
+            //    cboCurrentConfig.SelectedIndex = 0;
+            //    return;
+            //}
+
             if (cboCurrentConfig.SelectedIndex == -1)
-            {
-                cboCurrentConfig.SelectedIndex = 0;
                 return;
-            }
+
             if (!formLoading)
             {
                 bool hasChanges = HasRowChanges(current: this.mainProps, original: this.origMainProps);
@@ -1169,7 +1184,7 @@ namespace AZI_SWCustomProperties
             // Get a list of configuration names
             List<string> configNames = new List<string>(swMod.ConfigNames);
             configNames.Insert(0, "");
-            string currentConfigName = ((ComboboxItem)cboCurrentConfig.SelectedItem).Value;
+            string currentConfigName = ((ComboboxItem)cboCurrentConfig.SelectedItem).Value.ToString();
             configNames.Remove(currentConfigName);
 
             // Get configuration from which we will copy properties
@@ -1199,14 +1214,19 @@ namespace AZI_SWCustomProperties
             PushToOdoo();
             UpdateChangeIndicators();
         }
+
+        private void MaterialPn_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            Material.Text = ((ComboboxItem)MaterialPn.SelectedItem).Text;
+        }
     }
 
     public class ComboboxItem
     {
         public string Text { get; set; }
-        public string Value { get; set; }
+        public object Value { get; set; }
 
-        public ComboboxItem(string Text, string Value)
+        public ComboboxItem(string Text, object Value)
         {
             this.Text = Text;
             this.Value = Value;

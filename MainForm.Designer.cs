@@ -236,7 +236,7 @@
             this.RouteTemplate.BackColor = System.Drawing.SystemColors.Window;
             this.RouteTemplate.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.RouteTemplate.FormattingEnabled = true;
-            this.RouteTemplate.Location = new System.Drawing.Point(72, 285);
+            this.RouteTemplate.Location = new System.Drawing.Point(72, 266);
             this.RouteTemplate.Name = "RouteTemplate";
             this.RouteTemplate.Size = new System.Drawing.Size(186, 21);
             this.RouteTemplate.TabIndex = 17;
@@ -244,7 +244,7 @@
             // lblRouteTemplate
             // 
             this.lblRouteTemplate.AutoSize = true;
-            this.lblRouteTemplate.Location = new System.Drawing.Point(22, 288);
+            this.lblRouteTemplate.Location = new System.Drawing.Point(22, 269);
             this.lblRouteTemplate.Name = "lblRouteTemplate";
             this.lblRouteTemplate.Size = new System.Drawing.Size(44, 13);
             this.lblRouteTemplate.TabIndex = 42;
@@ -254,15 +254,16 @@
             // 
             this.MaterialPn.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.MaterialPn.FormattingEnabled = true;
-            this.MaterialPn.Location = new System.Drawing.Point(72, 232);
+            this.MaterialPn.Location = new System.Drawing.Point(72, 213);
             this.MaterialPn.Name = "MaterialPn";
-            this.MaterialPn.Size = new System.Drawing.Size(154, 21);
+            this.MaterialPn.Size = new System.Drawing.Size(376, 21);
             this.MaterialPn.TabIndex = 14;
+            this.MaterialPn.SelectedIndexChanged += new System.EventHandler(this.MaterialPn_SelectedIndexChanged);
             // 
             // lblMaterialPn
             // 
             this.lblMaterialPn.AutoSize = true;
-            this.lblMaterialPn.Location = new System.Drawing.Point(22, 235);
+            this.lblMaterialPn.Location = new System.Drawing.Point(22, 216);
             this.lblMaterialPn.Name = "lblMaterialPn";
             this.lblMaterialPn.Size = new System.Drawing.Size(44, 13);
             this.lblMaterialPn.TabIndex = 40;
@@ -278,7 +279,7 @@
             // lblEcoChks
             // 
             this.lblEcoChks.AutoSize = true;
-            this.lblEcoChks.Location = new System.Drawing.Point(518, 337);
+            this.lblEcoChks.Location = new System.Drawing.Point(518, 354);
             this.lblEcoChks.Name = "lblEcoChks";
             this.lblEcoChks.Size = new System.Drawing.Size(26, 13);
             this.lblEcoChks.TabIndex = 38;
@@ -287,7 +288,7 @@
             // EcoChks
             // 
             this.EcoChks.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.EcoChks.Location = new System.Drawing.Point(519, 353);
+            this.EcoChks.Location = new System.Drawing.Point(519, 370);
             this.EcoChks.Multiline = true;
             this.EcoChks.Name = "EcoChks";
             this.EcoChks.Size = new System.Drawing.Size(36, 180);
@@ -298,7 +299,7 @@
             // lblEcoDates
             // 
             this.lblEcoDates.AutoSize = true;
-            this.lblEcoDates.Location = new System.Drawing.Point(449, 337);
+            this.lblEcoDates.Location = new System.Drawing.Point(449, 354);
             this.lblEcoDates.Name = "lblEcoDates";
             this.lblEcoDates.Size = new System.Drawing.Size(30, 13);
             this.lblEcoDates.TabIndex = 36;
@@ -307,7 +308,7 @@
             // EcoDates
             // 
             this.EcoDates.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.EcoDates.Location = new System.Drawing.Point(450, 353);
+            this.EcoDates.Location = new System.Drawing.Point(450, 370);
             this.EcoDates.Multiline = true;
             this.EcoDates.Name = "EcoDates";
             this.EcoDates.Size = new System.Drawing.Size(70, 180);
@@ -318,7 +319,7 @@
             // lblEcoDescriptions
             // 
             this.lblEcoDescriptions.AutoSize = true;
-            this.lblEcoDescriptions.Location = new System.Drawing.Point(112, 337);
+            this.lblEcoDescriptions.Location = new System.Drawing.Point(112, 354);
             this.lblEcoDescriptions.Name = "lblEcoDescriptions";
             this.lblEcoDescriptions.Size = new System.Drawing.Size(60, 13);
             this.lblEcoDescriptions.TabIndex = 34;
@@ -328,7 +329,7 @@
             // 
             this.EcoDescriptions.BackColor = System.Drawing.SystemColors.Window;
             this.EcoDescriptions.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.EcoDescriptions.Location = new System.Drawing.Point(106, 353);
+            this.EcoDescriptions.Location = new System.Drawing.Point(106, 370);
             this.EcoDescriptions.Multiline = true;
             this.EcoDescriptions.Name = "EcoDescriptions";
             this.EcoDescriptions.Size = new System.Drawing.Size(345, 180);
@@ -340,7 +341,7 @@
             // lblZone
             // 
             this.lblZone.AutoSize = true;
-            this.lblZone.Location = new System.Drawing.Point(79, 337);
+            this.lblZone.Location = new System.Drawing.Point(79, 354);
             this.lblZone.Name = "lblZone";
             this.lblZone.Size = new System.Drawing.Size(32, 13);
             this.lblZone.TabIndex = 32;
@@ -349,7 +350,7 @@
             // Zone
             // 
             this.Zone.Font = new System.Drawing.Font("Courier New", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.Zone.Location = new System.Drawing.Point(78, 353);
+            this.Zone.Location = new System.Drawing.Point(78, 370);
             this.Zone.Multiline = true;
             this.Zone.Name = "Zone";
             this.Zone.Size = new System.Drawing.Size(29, 180);
@@ -360,7 +361,7 @@
             // lblEcoRevs
             // 
             this.lblEcoRevs.AutoSize = true;
-            this.lblEcoRevs.Location = new System.Drawing.Point(53, 337);
+            this.lblEcoRevs.Location = new System.Drawing.Point(53, 354);
             this.lblEcoRevs.Name = "lblEcoRevs";
             this.lblEcoRevs.Size = new System.Drawing.Size(27, 13);
             this.lblEcoRevs.TabIndex = 30;
@@ -369,7 +370,7 @@
             // EcoRevs
             // 
             this.EcoRevs.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.EcoRevs.Location = new System.Drawing.Point(54, 353);
+            this.EcoRevs.Location = new System.Drawing.Point(54, 370);
             this.EcoRevs.Multiline = true;
             this.EcoRevs.Name = "EcoRevs";
             this.EcoRevs.Size = new System.Drawing.Size(25, 180);
@@ -380,7 +381,7 @@
             // lblEcos
             // 
             this.lblEcos.AutoSize = true;
-            this.lblEcos.Location = new System.Drawing.Point(11, 337);
+            this.lblEcos.Location = new System.Drawing.Point(11, 354);
             this.lblEcos.Name = "lblEcos";
             this.lblEcos.Size = new System.Drawing.Size(29, 13);
             this.lblEcos.TabIndex = 28;
@@ -389,7 +390,7 @@
             // Ecos
             // 
             this.Ecos.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.Ecos.Location = new System.Drawing.Point(13, 353);
+            this.Ecos.Location = new System.Drawing.Point(13, 370);
             this.Ecos.Multiline = true;
             this.Ecos.Name = "Ecos";
             this.Ecos.Size = new System.Drawing.Size(42, 180);
@@ -468,7 +469,7 @@
             // lblAltQty
             // 
             this.lblAltQty.AutoSize = true;
-            this.lblAltQty.Location = new System.Drawing.Point(302, 262);
+            this.lblAltQty.Location = new System.Drawing.Point(302, 281);
             this.lblAltQty.Name = "lblAltQty";
             this.lblAltQty.Size = new System.Drawing.Size(38, 13);
             this.lblAltQty.TabIndex = 16;
@@ -476,7 +477,7 @@
             // 
             // AltQty
             // 
-            this.AltQty.Location = new System.Drawing.Point(343, 259);
+            this.AltQty.Location = new System.Drawing.Point(343, 278);
             this.AltQty.Name = "AltQty";
             this.AltQty.Size = new System.Drawing.Size(53, 20);
             this.AltQty.TabIndex = 19;
@@ -485,7 +486,7 @@
             // 
             this.Make.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.Make.FormattingEnabled = true;
-            this.Make.Location = new System.Drawing.Point(343, 285);
+            this.Make.Location = new System.Drawing.Point(343, 304);
             this.Make.Name = "Make";
             this.Make.Size = new System.Drawing.Size(53, 21);
             this.Make.TabIndex = 21;
@@ -493,7 +494,7 @@
             // lblMake
             // 
             this.lblMake.AutoSize = true;
-            this.lblMake.Location = new System.Drawing.Point(302, 288);
+            this.lblMake.Location = new System.Drawing.Point(302, 307);
             this.lblMake.Name = "lblMake";
             this.lblMake.Size = new System.Drawing.Size(34, 13);
             this.lblMake.TabIndex = 13;
@@ -512,7 +513,7 @@
             // 
             this.Uom.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.Uom.FormattingEnabled = true;
-            this.Uom.Location = new System.Drawing.Point(343, 232);
+            this.Uom.Location = new System.Drawing.Point(343, 251);
             this.Uom.Name = "Uom";
             this.Uom.Size = new System.Drawing.Size(53, 21);
             this.Uom.TabIndex = 18;
@@ -520,7 +521,7 @@
             // lblUom
             // 
             this.lblUom.AutoSize = true;
-            this.lblUom.Location = new System.Drawing.Point(302, 236);
+            this.lblUom.Location = new System.Drawing.Point(302, 255);
             this.lblUom.Name = "lblUom";
             this.lblUom.Size = new System.Drawing.Size(32, 13);
             this.lblUom.TabIndex = 9;
@@ -595,7 +596,7 @@
             // NonEcoMod
             // 
             this.NonEcoMod.AutoSize = true;
-            this.NonEcoMod.Location = new System.Drawing.Point(441, 262);
+            this.NonEcoMod.Location = new System.Drawing.Point(441, 282);
             this.NonEcoMod.Name = "NonEcoMod";
             this.NonEcoMod.Size = new System.Drawing.Size(108, 17);
             this.NonEcoMod.TabIndex = 23;
@@ -605,7 +606,7 @@
             // HoldProduction
             // 
             this.HoldProduction.AutoSize = true;
-            this.HoldProduction.Location = new System.Drawing.Point(441, 236);
+            this.HoldProduction.Location = new System.Drawing.Point(441, 256);
             this.HoldProduction.Name = "HoldProduction";
             this.HoldProduction.Size = new System.Drawing.Size(102, 17);
             this.HoldProduction.TabIndex = 22;
@@ -615,7 +616,7 @@
             // HasEtching
             // 
             this.HasEtching.AutoSize = true;
-            this.HasEtching.Location = new System.Drawing.Point(441, 288);
+            this.HasEtching.Location = new System.Drawing.Point(441, 308);
             this.HasEtching.Name = "HasEtching";
             this.HasEtching.Size = new System.Drawing.Size(48, 17);
             this.HasEtching.TabIndex = 24;
@@ -771,7 +772,7 @@
             // lblChildQty
             // 
             this.lblChildQty.AutoSize = true;
-            this.lblChildQty.Location = new System.Drawing.Point(22, 262);
+            this.lblChildQty.Location = new System.Drawing.Point(22, 243);
             this.lblChildQty.Name = "lblChildQty";
             this.lblChildQty.Size = new System.Drawing.Size(49, 13);
             this.lblChildQty.TabIndex = 48;
@@ -779,7 +780,7 @@
             // 
             // ChildQty
             // 
-            this.ChildQty.Location = new System.Drawing.Point(72, 259);
+            this.ChildQty.Location = new System.Drawing.Point(72, 240);
             this.ChildQty.Name = "ChildQty";
             this.ChildQty.Size = new System.Drawing.Size(39, 20);
             this.ChildQty.TabIndex = 16;
@@ -805,7 +806,7 @@
             // btnOverwriteEcos
             // 
             this.btnOverwriteEcos.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnOverwriteEcos.Location = new System.Drawing.Point(562, 510);
+            this.btnOverwriteEcos.Location = new System.Drawing.Point(562, 527);
             this.btnOverwriteEcos.Name = "btnOverwriteEcos";
             this.btnOverwriteEcos.Size = new System.Drawing.Size(147, 23);
             this.btnOverwriteEcos.TabIndex = 35;
@@ -845,7 +846,7 @@
             dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
             dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
             this.dgEcos.DefaultCellStyle = dataGridViewCellStyle2;
-            this.dgEcos.Location = new System.Drawing.Point(12, 539);
+            this.dgEcos.Location = new System.Drawing.Point(12, 556);
             this.dgEcos.Name = "dgEcos";
             this.dgEcos.ReadOnly = true;
             dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
@@ -856,7 +857,7 @@
             dataGridViewCellStyle3.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
             dataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
             this.dgEcos.RowHeadersDefaultCellStyle = dataGridViewCellStyle3;
-            this.dgEcos.Size = new System.Drawing.Size(697, 219);
+            this.dgEcos.Size = new System.Drawing.Size(697, 202);
             this.dgEcos.TabIndex = 65;
             // 
             // cmsGeneric
@@ -884,7 +885,7 @@
             // 
             this.MaterialPnChange.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.MaterialPnChange.ForeColor = System.Drawing.Color.Red;
-            this.MaterialPnChange.Location = new System.Drawing.Point(3, 235);
+            this.MaterialPnChange.Location = new System.Drawing.Point(3, 216);
             this.MaterialPnChange.Margin = new System.Windows.Forms.Padding(0);
             this.MaterialPnChange.Name = "MaterialPnChange";
             this.MaterialPnChange.Size = new System.Drawing.Size(22, 14);
@@ -896,7 +897,7 @@
             // 
             this.ChildQtyChange.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.ChildQtyChange.ForeColor = System.Drawing.Color.Red;
-            this.ChildQtyChange.Location = new System.Drawing.Point(2, 262);
+            this.ChildQtyChange.Location = new System.Drawing.Point(2, 243);
             this.ChildQtyChange.Margin = new System.Windows.Forms.Padding(0);
             this.ChildQtyChange.Name = "ChildQtyChange";
             this.ChildQtyChange.Size = new System.Drawing.Size(22, 14);
@@ -908,7 +909,7 @@
             // 
             this.RouteTemplateChange.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.RouteTemplateChange.ForeColor = System.Drawing.Color.Red;
-            this.RouteTemplateChange.Location = new System.Drawing.Point(2, 288);
+            this.RouteTemplateChange.Location = new System.Drawing.Point(2, 269);
             this.RouteTemplateChange.Margin = new System.Windows.Forms.Padding(0);
             this.RouteTemplateChange.Name = "RouteTemplateChange";
             this.RouteTemplateChange.Size = new System.Drawing.Size(22, 14);
@@ -920,7 +921,7 @@
             // 
             this.UomChange.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.UomChange.ForeColor = System.Drawing.Color.Red;
-            this.UomChange.Location = new System.Drawing.Point(281, 236);
+            this.UomChange.Location = new System.Drawing.Point(281, 255);
             this.UomChange.Margin = new System.Windows.Forms.Padding(0);
             this.UomChange.Name = "UomChange";
             this.UomChange.Size = new System.Drawing.Size(22, 14);
@@ -932,7 +933,7 @@
             // 
             this.AltQtyChange.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.AltQtyChange.ForeColor = System.Drawing.Color.Red;
-            this.AltQtyChange.Location = new System.Drawing.Point(281, 262);
+            this.AltQtyChange.Location = new System.Drawing.Point(281, 281);
             this.AltQtyChange.Margin = new System.Windows.Forms.Padding(0);
             this.AltQtyChange.Name = "AltQtyChange";
             this.AltQtyChange.Size = new System.Drawing.Size(22, 14);
@@ -944,7 +945,7 @@
             // 
             this.MakeChange.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.MakeChange.ForeColor = System.Drawing.Color.Red;
-            this.MakeChange.Location = new System.Drawing.Point(281, 288);
+            this.MakeChange.Location = new System.Drawing.Point(281, 307);
             this.MakeChange.Margin = new System.Windows.Forms.Padding(0);
             this.MakeChange.Name = "MakeChange";
             this.MakeChange.Size = new System.Drawing.Size(22, 14);
@@ -956,7 +957,7 @@
             // 
             this.HasEtchingChange.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.HasEtchingChange.ForeColor = System.Drawing.Color.Red;
-            this.HasEtchingChange.Location = new System.Drawing.Point(417, 288);
+            this.HasEtchingChange.Location = new System.Drawing.Point(417, 308);
             this.HasEtchingChange.Margin = new System.Windows.Forms.Padding(0);
             this.HasEtchingChange.Name = "HasEtchingChange";
             this.HasEtchingChange.Size = new System.Drawing.Size(22, 14);
@@ -968,7 +969,7 @@
             // 
             this.NonEcoModChange.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.NonEcoModChange.ForeColor = System.Drawing.Color.Red;
-            this.NonEcoModChange.Location = new System.Drawing.Point(417, 262);
+            this.NonEcoModChange.Location = new System.Drawing.Point(417, 282);
             this.NonEcoModChange.Margin = new System.Windows.Forms.Padding(0);
             this.NonEcoModChange.Name = "NonEcoModChange";
             this.NonEcoModChange.Size = new System.Drawing.Size(22, 14);
@@ -980,7 +981,7 @@
             // 
             this.HoldProductionChange.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.HoldProductionChange.ForeColor = System.Drawing.Color.Red;
-            this.HoldProductionChange.Location = new System.Drawing.Point(417, 236);
+            this.HoldProductionChange.Location = new System.Drawing.Point(417, 256);
             this.HoldProductionChange.Margin = new System.Windows.Forms.Padding(0);
             this.HoldProductionChange.Name = "HoldProductionChange";
             this.HoldProductionChange.Size = new System.Drawing.Size(22, 14);
@@ -1136,7 +1137,7 @@
             // 
             this.EcosChange.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.EcosChange.ForeColor = System.Drawing.Color.Red;
-            this.EcosChange.Location = new System.Drawing.Point(12, 324);
+            this.EcosChange.Location = new System.Drawing.Point(12, 341);
             this.EcosChange.Margin = new System.Windows.Forms.Padding(0);
             this.EcosChange.Name = "EcosChange";
             this.EcosChange.Size = new System.Drawing.Size(22, 14);
@@ -1148,7 +1149,7 @@
             // 
             this.EcoRevsChange.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.EcoRevsChange.ForeColor = System.Drawing.Color.Red;
-            this.EcoRevsChange.Location = new System.Drawing.Point(54, 324);
+            this.EcoRevsChange.Location = new System.Drawing.Point(54, 341);
             this.EcoRevsChange.Margin = new System.Windows.Forms.Padding(0);
             this.EcoRevsChange.Name = "EcoRevsChange";
             this.EcoRevsChange.Size = new System.Drawing.Size(22, 14);
@@ -1160,7 +1161,7 @@
             // 
             this.ZoneChange.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.ZoneChange.ForeColor = System.Drawing.Color.Red;
-            this.ZoneChange.Location = new System.Drawing.Point(79, 324);
+            this.ZoneChange.Location = new System.Drawing.Point(79, 341);
             this.ZoneChange.Margin = new System.Windows.Forms.Padding(0);
             this.ZoneChange.Name = "ZoneChange";
             this.ZoneChange.Size = new System.Drawing.Size(22, 14);
@@ -1172,7 +1173,7 @@
             // 
             this.EcoDescriptionsChange.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.EcoDescriptionsChange.ForeColor = System.Drawing.Color.Red;
-            this.EcoDescriptionsChange.Location = new System.Drawing.Point(112, 324);
+            this.EcoDescriptionsChange.Location = new System.Drawing.Point(112, 341);
             this.EcoDescriptionsChange.Margin = new System.Windows.Forms.Padding(0);
             this.EcoDescriptionsChange.Name = "EcoDescriptionsChange";
             this.EcoDescriptionsChange.Size = new System.Drawing.Size(22, 14);
@@ -1184,7 +1185,7 @@
             // 
             this.EcoDatesChange.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.EcoDatesChange.ForeColor = System.Drawing.Color.Red;
-            this.EcoDatesChange.Location = new System.Drawing.Point(449, 323);
+            this.EcoDatesChange.Location = new System.Drawing.Point(449, 340);
             this.EcoDatesChange.Margin = new System.Windows.Forms.Padding(0);
             this.EcoDatesChange.Name = "EcoDatesChange";
             this.EcoDatesChange.Size = new System.Drawing.Size(22, 14);
@@ -1196,7 +1197,7 @@
             // 
             this.EcoChksChange.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.EcoChksChange.ForeColor = System.Drawing.Color.Red;
-            this.EcoChksChange.Location = new System.Drawing.Point(518, 323);
+            this.EcoChksChange.Location = new System.Drawing.Point(518, 340);
             this.EcoChksChange.Margin = new System.Windows.Forms.Padding(0);
             this.EcoChksChange.Name = "EcoChksChange";
             this.EcoChksChange.Size = new System.Drawing.Size(22, 14);
@@ -1263,7 +1264,7 @@
             // 
             this.OdooImage.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.OdooImage.Image = ((System.Drawing.Image)(resources.GetObject("OdooImage.Image")));
-            this.OdooImage.Location = new System.Drawing.Point(561, 353);
+            this.OdooImage.Location = new System.Drawing.Point(561, 370);
             this.OdooImage.Name = "OdooImage";
             this.OdooImage.Size = new System.Drawing.Size(148, 148);
             this.OdooImage.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
@@ -1273,7 +1274,7 @@
             // btnSearchRm
             // 
             this.btnSearchRm.Image = global::AZI_SWCustomProperties.Properties.Resources.Search_16x;
-            this.btnSearchRm.Location = new System.Drawing.Point(229, 232);
+            this.btnSearchRm.Location = new System.Drawing.Point(454, 213);
             this.btnSearchRm.Name = "btnSearchRm";
             this.btnSearchRm.Size = new System.Drawing.Size(26, 21);
             this.btnSearchRm.TabIndex = 15;

@@ -38,6 +38,10 @@ namespace SwApiAbstraction
         //// swCustomInfoType_e.swCustomInfoText = 30
         //// swCustomInfoType_e.swCustomInfoUnknown = 0
         //// swCustomInfoType_e.swCustomInfoYesOrNo = 11
+        ////
+        //// We never use swCustomInfoYesOrNo because we can't bind a null value to a CheckBox control
+        //// We only use swCustomInfoText because the others are too hard to parse
+        ////
 
         //// ******************************************************************************
         //// ***                                                                        ***
