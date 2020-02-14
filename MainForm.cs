@@ -1217,7 +1217,10 @@ namespace AZI_SWCustomProperties
 
         private void MaterialPn_SelectedIndexChanged(object sender, EventArgs e)
         {
-            Material.Text = ((ComboboxItem)MaterialPn.SelectedItem).Text;
+            if (MaterialPn.SelectedItem == null)
+                Material.Text = "";
+            else
+                Material.Text = ((ComboboxItem)MaterialPn.SelectedItem).Text;
         }
     }
 
