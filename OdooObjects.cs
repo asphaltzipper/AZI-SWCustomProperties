@@ -426,7 +426,7 @@ namespace OdooObjects
         {
             Dictionary<string, string> types = new Dictionary<string, string>();
 
-            ArrayList ids = oObject.Search("engineering.part.type", null);
+            ArrayList ids = oObject.Search("engineering.part.type", new ArrayList(1));
             ArrayList records = oObject.Read("engineering.part.type", ids, new ArrayList(2) { "code", "name" });
             if (records == null)
                 return types;
@@ -444,7 +444,7 @@ namespace OdooObjects
         {
             List<string> items = new List<string>();
 
-            ArrayList ids = oObject.Search("engineering.coating", null);
+            ArrayList ids = oObject.Search("engineering.coating", new ArrayList(1));
             ArrayList records = oObject.Read("engineering.coating", ids, new ArrayList(2) { "name" });
             if (records == null)
                 return items;
@@ -461,7 +461,7 @@ namespace OdooObjects
         {
             List<string> items = new List<string>();
 
-            ArrayList ids = oObject.Search("engineering.preparation", null);
+            ArrayList ids = oObject.Search("engineering.preparation", new ArrayList(1));
             ArrayList records = oObject.Read("engineering.preparation", ids, new ArrayList(2) { "name" });
             if (records == null)
                 return items;
