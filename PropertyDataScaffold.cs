@@ -359,11 +359,11 @@ namespace PropertyDataScaffold
                     swPropNames.Add((string)dr["sw_prop"]);
                     swPropFields.Add((string)dr["field"]);
                     // Map SolidWorks custom property names to SolidWorks custom property types
-                    propTypes.Add((string)dr["sw_prop"], (int)(long)dr["sw_type"]);
+                    propTypes[(string)dr["sw_prop"]] = (int)(long)dr["sw_type"];
                     // Map SolidWorks custom property names to DB field names
-                    dictPropField.Add((string)dr["sw_prop"], (string)dr["field"]);
+                    dictPropField[(string)dr["sw_prop"]] = (string)dr["field"];
                     // Map DB field names to SolidWorks custom property names
-                    dictFieldProp.Add((string)dr["field"], (string)dr["sw_prop"]);
+                    dictFieldProp[(string)dr["field"]] = (string)dr["sw_prop"];
                 }
                 else
                     otherFields.Add((string)dr["field"]);

@@ -19,6 +19,7 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 
 using PropertyDataScaffold;
+using System.Data.Entity.ModelConfiguration.Conventions;
 
 namespace SwApiAbstraction
 {
@@ -490,19 +491,31 @@ namespace SwApiAbstraction
 
         #region Custom Properties
 
-        public static object GetPropDefaultValue(string value, string type)
+        public static object GetPropDefaultValue(string value, string type, string name)
         {
-            if (value == "" && type == "System.String")
-                return DBNull.Value;
-            else if (value == "" && type == "System.Boolean")
-                return false;
-            else if (value == "" && type == "System.Int32")
-                return 0;
-            else if (value == "" && type == "System.Decimal")
-                return 0.0;
+            if (value != "")
+            {
+                try
+                {
+                    return Convert.ChangeType(value, Type.GetType(type));
+                }
+                catch (Exception e)
+                {
+                    throw new Exception(String.Format("Failed converting {0} to type {1} for field {2}: {3}", value, type, name, e.Message));
+                }
+            }
             else
             {
-                return Convert.ChangeType(value, Type.GetType(type));
+                if (type == "System.String")
+                    return DBNull.Value;
+                else if (type == "System.Boolean")
+                    return false;
+                else if (type == "System.Int32")
+                    return 0;
+                else if (type == "System.Decimal")
+                    return 0.0;
+                else
+                    throw new Exception(String.Format("Unknown data type {0} for property {1}", type, name));
             }
         }
 
@@ -528,38 +541,116 @@ namespace SwApiAbstraction
             if (configName != "" && !configNames.Contains(configName))
                 return dr;
 
+            dr["filename"] = pathName;
+            dr["configname"] = configName;
+            dr["PlaceHoldFlag"] = false;
+            dr["ShowChildren"] = swMainConfig.ShowChildComponentsInBOM;
+            CustomPropertyManager swAltCustPropMgr = (CustomPropertyManager)swModelDocExt.get_CustomPropertyManager("");
+
             // Get property manager for this config
             CustomPropertyManager swCustPropMgr = (CustomPropertyManager)swModelDocExt.get_CustomPropertyManager(configName);
-            CustomPropertyManager swAltCustPropMgr = (CustomPropertyManager)swModelDocExt.get_CustomPropertyManager("");
             string[] nameArray = swCustPropMgr.GetNames();
             List<string> propNames = new List<string>();
             if (nameArray != null)
                 propNames.AddRange(swCustPropMgr.GetNames());
 
-            dr["filename"] = pathName;
-            dr["configname"] = configName;
-            dr["PlaceHoldFlag"] = false;
-            dr["ShowChildren"] = swMainConfig.ShowChildComponentsInBOM;
+            //// The GetAll3 method is faster than getting one property at a time with the Get6 method, but it can't get unresolved values
+            //// Get custom properties from this configuration
+            //object oPropNames = null;
+            //object oPropTypes = null;
+            //object oPropValues = null;
+            //object oResolved = null;
+            //object oPropLink = null;
+            //Dictionary<string, string> dProps = new Dictionary<string, string>();
+            //swCustPropMgr.GetAll3(ref oPropNames, ref oPropTypes, ref oPropValues, ref oResolved, ref oPropLink);
+            //string[] aPropNames = (string[])oPropNames;
+            //object[] aPropValues = (object[])oPropValues;
+            //for (int i = 0; i < swCustPropMgr.Count; i++)
+            //{
+            //    dProps[aPropNames[i]] = aPropValues[i].ToString().Trim();
+            //}
 
-            // Get custom properties from specific configuration
-            // Get the file level properties when the config name is an empty string (i.e. "")
-            string strVal;
-            string strResolved;
+            //// Get the file level properties (the config name is an empty string, i.e. "")
+            //Dictionary<string, string> dAltProps = new Dictionary<string, string>();
+            //if (merge && configName != "")
+            //{
+            //    swAltCustPropMgr.GetAll3(ref oPropNames, ref oPropTypes, ref oPropValues, ref oResolved, ref oPropLink);
+            //    aPropNames = (string[])oPropNames;
+            //    aPropValues = (object[])oPropValues;
+            //    for (int i = 0; i < swAltCustPropMgr.Count; i++)
+            //    {
+            //        dAltProps[aPropNames[i]] = aPropValues[i].ToString().Trim();
+            //    }
+            //}
+
+            //// Assign property values to datarow fields
+            //string strResolved;
+            //foreach (DataRow drField in propScaffold.FieldDefs.Select("sw_prop is not null"))
+            //{
+            //    string propName = drField["sw_prop"].ToString();
+            //    string fieldName = drField["field"].ToString();
+            //    string typeName = drField["dt_type"].ToString();
+            //    if (!dProps.TryGetValue(propName, out strResolved))
+            //    {
+            //        strResolved = "";
+            //    }
+            //    dr[fieldName] = GetPropDefaultValue(strResolved, typeName);
+
+            //    // If merging config specific properties with the file level properties
+            //    if (merge && configName != "" && !propNames.Contains(propName))
+            //    {
+            //        if (!dAltProps.TryGetValue(propName, out strResolved))
+            //        {
+            //            strResolved = "";
+            //        }
+            //        dr[fieldName] = GetPropDefaultValue(strResolved, typeName);
+            //    }
+            //}
+
+            // On models with many configs, getting the property values with Get6 takes a bit longer that GetAll3
+            // Get property values and assign to datarow fields
             foreach (DataRow drField in propScaffold.FieldDefs.Select("sw_prop is not null"))
             {
                 string propName = drField["sw_prop"].ToString();
                 string fieldName = drField["field"].ToString();
                 string typeName = drField["dt_type"].ToString();
-                swCustPropMgr.Get4(propName, false, out strVal, out strResolved);
-                strResolved = strResolved.Trim();
-                dr[fieldName] = GetPropDefaultValue(strResolved, typeName);
+                bool rawValue = ((long)drField["raw_value"]) != 0;
+                swCustPropMgr.Get6(
+                    propName,
+                    true,
+                    out string strVal,
+                    out string strResolved,
+                    out bool blnWasResolved,
+                    out bool blnLinkToProperty);
+                if (!rawValue)
+                {
+                    strResolved = strResolved.Trim();
+                    dr[fieldName] = GetPropDefaultValue(strResolved, typeName, propName);
+                }
+                else
+                {
+                    dr[fieldName] = strVal;
+                }
 
                 // If merging config specific properties with the file level properties
                 if (merge && configName != "" && !propNames.Contains(propName))
                 {
-                    swAltCustPropMgr.Get4(propName, false, out strVal, out strResolved);
-                    strResolved = strResolved.Trim();
-                    dr[fieldName] = GetPropDefaultValue(strResolved, typeName);
+                    swAltCustPropMgr.Get6(
+                        propName,
+                        true,
+                        out strVal,
+                        out strResolved,
+                        out blnWasResolved,
+                        out blnLinkToProperty);
+                    if (!rawValue)
+                    {
+                        strResolved = strResolved.Trim();
+                        dr[fieldName] = GetPropDefaultValue(strResolved, typeName, propName);
+                    }
+                    else
+                    {
+                        dr[fieldName] = strVal;
+                    }
                 }
             }
 
@@ -585,32 +676,75 @@ namespace SwApiAbstraction
                     //Feature cutList = swMainModel.SelectionManager.GetSelectedObject6(1, 0);
                     CustomPropertyManager cutPropMgr = cutList.CustomPropertyManager;
                     List<string> names = new List<string>(cutPropMgr.GetNames());
-                    string valOut; string resolvedValOut; decimal decimalValOut; int intValOut; bool wasResolved;
-                    cutPropMgr.Get5("Sheet Metal Thickness", false, out valOut, out resolvedValOut, out wasResolved);
-                    Decimal.TryParse(resolvedValOut, out decimal sheetThickness);
+                    string strValOut; string strResolvedValOut; decimal decimalValOut; int intValOut; bool blnWasResolved, blnLinkToProperty;
+                    cutPropMgr.Get6(
+                        "Sheet Metal Thickness",
+                        true,
+                        out strValOut,
+                        out strResolvedValOut,
+                        out blnWasResolved,
+                        out blnLinkToProperty);
+                    Decimal.TryParse(strResolvedValOut, out decimal sheetThickness);
+                    dr["Thickness"] = sheetThickness;
                     if (names.Contains("Sheet Metal Thickness") && sheetThickness != 0.0M)
                     {
-                        cutPropMgr.Get5("Cutting Length-Outer", false, out valOut, out resolvedValOut, out wasResolved);
-                        Decimal.TryParse(resolvedValOut, out decimalValOut);
+                        cutPropMgr.Get6(
+                            "Cutting Length-Outer",
+                            true,
+                            out strValOut,
+                            out strResolvedValOut,
+                            out blnWasResolved,
+                            out blnLinkToProperty);
+                        Decimal.TryParse(strResolvedValOut, out decimalValOut);
                         dr["CuttingLengthOuter"] = Decimal.Round(decimalValOut, 2);
 
-                        cutPropMgr.Get5("Cutting Length-Inner", false, out valOut, out resolvedValOut, out wasResolved);
-                        Decimal.TryParse(resolvedValOut, out decimalValOut);
+                        cutPropMgr.Get6(
+                            "Cutting Length-Inner",
+                            true,
+                            out strValOut,
+                            out strResolvedValOut,
+                            out blnWasResolved,
+                            out blnLinkToProperty);
+                        Decimal.TryParse(strResolvedValOut, out decimalValOut);
                         dr["CuttingLengthInner"] = Decimal.Round(decimalValOut, 2);
 
-                        cutPropMgr.Get5("Cut Outs", false, out valOut, out resolvedValOut, out wasResolved);
-                        int.TryParse(resolvedValOut, out intValOut);
+                        cutPropMgr.Get6(
+                            "Cut Outs",
+                            true,
+                            out strValOut,
+                            out strResolvedValOut,
+                            out blnWasResolved,
+                            out blnLinkToProperty);
+                        int.TryParse(strResolvedValOut, out intValOut);
                         dr["CutOutCount"] = intValOut;
 
-                        cutPropMgr.Get5("Bends", false, out valOut, out resolvedValOut, out wasResolved);
-                        int.TryParse(resolvedValOut, out intValOut);
+                        cutPropMgr.Get6(
+                            "Bends",
+                            true,
+                            out strValOut,
+                            out strResolvedValOut,
+                            out blnWasResolved,
+                            out blnLinkToProperty);
+                        int.TryParse(strResolvedValOut, out intValOut);
                         dr["BendCount"] = intValOut;
 
                         Decimal mult = AZI_SWCustomProperties.Properties.AppSettings.Default.AreaFactor;
-                        cutPropMgr.Get5("Bounding Box Length", false, out valOut, out resolvedValOut, out wasResolved);
-                        Decimal.TryParse(resolvedValOut, out decimal boxLength);
-                        cutPropMgr.Get5("Bounding Box Width", false, out valOut, out resolvedValOut, out wasResolved);
-                        Decimal.TryParse(resolvedValOut, out decimal boxWidth);
+                        cutPropMgr.Get6(
+                            "Bounding Box Length",
+                            true,
+                            out strValOut,
+                            out strResolvedValOut,
+                            out blnWasResolved,
+                            out blnLinkToProperty);
+                        Decimal.TryParse(strResolvedValOut, out decimal boxLength);
+                        cutPropMgr.Get6(
+                            "Bounding Box Width",
+                            true,
+                            out strValOut,
+                            out strResolvedValOut,
+                            out blnWasResolved,
+                            out blnLinkToProperty);
+                        Decimal.TryParse(strResolvedValOut, out decimal boxWidth);
                         Decimal qty = Math.Ceiling((boxLength + mult * sheetThickness) * (boxWidth + mult * sheetThickness));
                         dr["ChildQty"] = Decimal.Round(qty, 2);
                     }
@@ -656,7 +790,7 @@ namespace SwApiAbstraction
             bool hasPartNum = dr["PartNum"].ToString() != "";
 
             // So far, we always store custom properties as text (i.e. swCustomInfoType_e.swCustomInfoText)
-            foreach (DataRow drField in propScaffold.FieldDefs.Select("sw_prop is not null"))
+            foreach (DataRow drField in propScaffold.FieldDefs.Select("sw_prop is not null and sw_write=1"))
             {
                 string propName = drField["sw_prop"].ToString();
                 string fieldName = drField["field"].ToString();

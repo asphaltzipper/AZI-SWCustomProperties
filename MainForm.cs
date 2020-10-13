@@ -1168,7 +1168,7 @@ namespace AZI_SWCustomProperties
             {
                 string fieldName = drField["field"].ToString();
                 string fieldType = drField["dt_type"].ToString();
-                mainProps.DefaultView[0][fieldName] = SwModelWrapper.GetPropDefaultValue("", fieldType);
+                mainProps.DefaultView[0][fieldName] = SwModelWrapper.GetPropDefaultValue("", fieldType, fieldName);
             }
 
             // Update everything

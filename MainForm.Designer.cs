@@ -29,11 +29,15 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
+            this.btnSettings = new System.Windows.Forms.ToolStripDropDownButton();
+            this.btnRefresh = new System.Windows.Forms.ToolStripDropDownButton();
+            this.btnBomScan = new System.Windows.Forms.ToolStripDropDownButton();
+            this.btnGetImage = new System.Windows.Forms.ToolStripDropDownButton();
             this.lblUserStatus = new System.Windows.Forms.ToolStripStatusLabel();
             this.cboCurrentConfig = new System.Windows.Forms.ComboBox();
             this.lblCurrentConfig = new System.Windows.Forms.Label();
@@ -114,7 +118,7 @@
             this.ChildQtyChange = new System.Windows.Forms.Label();
             this.RouteTemplateChange = new System.Windows.Forms.Label();
             this.UomChange = new System.Windows.Forms.Label();
-            this.AltQtyChange = new System.Windows.Forms.Label();
+            this.AltQtyValueChange = new System.Windows.Forms.Label();
             this.MakeChange = new System.Windows.Forms.Label();
             this.HasEtchingChange = new System.Windows.Forms.Label();
             this.NonEcoModChange = new System.Windows.Forms.Label();
@@ -144,11 +148,11 @@
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.OdooImage = new System.Windows.Forms.PictureBox();
             this.btnSearchRm = new System.Windows.Forms.Button();
-            this.btnSettings = new System.Windows.Forms.ToolStripDropDownButton();
-            this.btnRefresh = new System.Windows.Forms.ToolStripDropDownButton();
-            this.btnBomScan = new System.Windows.Forms.ToolStripDropDownButton();
-            this.btnGetImage = new System.Windows.Forms.ToolStripDropDownButton();
             this.btnCopyFrom = new System.Windows.Forms.Button();
+            this.AltQtyValue = new System.Windows.Forms.TextBox();
+            this.label5 = new System.Windows.Forms.Label();
+            this.label6 = new System.Windows.Forms.Label();
+            this.Thickness = new System.Windows.Forms.TextBox();
             this.statusStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgEcos)).BeginInit();
             this.cmsGeneric.SuspendLayout();
@@ -168,6 +172,53 @@
             this.statusStrip1.Size = new System.Drawing.Size(721, 24);
             this.statusStrip1.TabIndex = 0;
             this.statusStrip1.Text = "statusStrip1";
+            // 
+            // btnSettings
+            // 
+            this.btnSettings.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.btnSettings.Image = ((System.Drawing.Image)(resources.GetObject("btnSettings.Image")));
+            this.btnSettings.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.btnSettings.Name = "btnSettings";
+            this.btnSettings.ShowDropDownArrow = false;
+            this.btnSettings.Size = new System.Drawing.Size(20, 22);
+            this.btnSettings.Text = "Settings";
+            this.btnSettings.ToolTipText = "Settings";
+            this.btnSettings.Click += new System.EventHandler(this.BtnSettings_Click);
+            // 
+            // btnRefresh
+            // 
+            this.btnRefresh.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.btnRefresh.Image = ((System.Drawing.Image)(resources.GetObject("btnRefresh.Image")));
+            this.btnRefresh.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.btnRefresh.Name = "btnRefresh";
+            this.btnRefresh.ShowDropDownArrow = false;
+            this.btnRefresh.Size = new System.Drawing.Size(20, 22);
+            this.btnRefresh.Text = "Refresh";
+            this.btnRefresh.Click += new System.EventHandler(this.BtnRefresh_Click);
+            // 
+            // btnBomScan
+            // 
+            this.btnBomScan.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.btnBomScan.Image = ((System.Drawing.Image)(resources.GetObject("btnBomScan.Image")));
+            this.btnBomScan.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.btnBomScan.Name = "btnBomScan";
+            this.btnBomScan.ShowDropDownArrow = false;
+            this.btnBomScan.Size = new System.Drawing.Size(20, 22);
+            this.btnBomScan.Text = "toolStripDropDownButton1";
+            this.btnBomScan.ToolTipText = "BOM Scan";
+            this.btnBomScan.Click += new System.EventHandler(this.BtnBomScan_Click);
+            // 
+            // btnGetImage
+            // 
+            this.btnGetImage.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.btnGetImage.Image = ((System.Drawing.Image)(resources.GetObject("btnGetImage.Image")));
+            this.btnGetImage.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.btnGetImage.Name = "btnGetImage";
+            this.btnGetImage.ShowDropDownArrow = false;
+            this.btnGetImage.Size = new System.Drawing.Size(20, 22);
+            this.btnGetImage.Text = "toolStripDropDownButton1";
+            this.btnGetImage.ToolTipText = "Get Image";
+            this.btnGetImage.Click += new System.EventHandler(this.BtnGetImage_Click);
             // 
             // lblUserStatus
             // 
@@ -200,7 +251,7 @@
             // btnApply
             // 
             this.btnApply.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnApply.Location = new System.Drawing.Point(545, 764);
+            this.btnApply.Location = new System.Drawing.Point(462, 764);
             this.btnApply.Name = "btnApply";
             this.btnApply.Size = new System.Drawing.Size(80, 23);
             this.btnApply.TabIndex = 39;
@@ -211,12 +262,14 @@
             // btnApplyClose
             // 
             this.btnApplyClose.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnApplyClose.Location = new System.Drawing.Point(462, 764);
+            this.btnApplyClose.Location = new System.Drawing.Point(377, 764);
             this.btnApplyClose.Name = "btnApplyClose";
             this.btnApplyClose.Size = new System.Drawing.Size(80, 23);
             this.btnApplyClose.TabIndex = 38;
+            this.btnApplyClose.TabStop = false;
             this.btnApplyClose.Text = "Apply/Close";
             this.btnApplyClose.UseVisualStyleBackColor = true;
+            this.btnApplyClose.Visible = false;
             this.btnApplyClose.Click += new System.EventHandler(this.BtnApplyClose_Click);
             // 
             // btnCancel
@@ -469,7 +522,7 @@
             // lblAltQty
             // 
             this.lblAltQty.AutoSize = true;
-            this.lblAltQty.Location = new System.Drawing.Point(302, 281);
+            this.lblAltQty.Location = new System.Drawing.Point(23, 308);
             this.lblAltQty.Name = "lblAltQty";
             this.lblAltQty.Size = new System.Drawing.Size(38, 13);
             this.lblAltQty.TabIndex = 16;
@@ -477,24 +530,26 @@
             // 
             // AltQty
             // 
-            this.AltQty.Location = new System.Drawing.Point(343, 278);
+            this.AltQty.Location = new System.Drawing.Point(343, 305);
             this.AltQty.Name = "AltQty";
+            this.AltQty.ReadOnly = true;
             this.AltQty.Size = new System.Drawing.Size(53, 20);
             this.AltQty.TabIndex = 19;
+            this.AltQty.TabStop = false;
             // 
             // Make
             // 
             this.Make.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.Make.FormattingEnabled = true;
-            this.Make.Location = new System.Drawing.Point(343, 304);
+            this.Make.Location = new System.Drawing.Point(343, 252);
             this.Make.Name = "Make";
             this.Make.Size = new System.Drawing.Size(53, 21);
-            this.Make.TabIndex = 21;
+            this.Make.TabIndex = 18;
             // 
             // lblMake
             // 
             this.lblMake.AutoSize = true;
-            this.lblMake.Location = new System.Drawing.Point(302, 307);
+            this.lblMake.Location = new System.Drawing.Point(302, 255);
             this.lblMake.Name = "lblMake";
             this.lblMake.Size = new System.Drawing.Size(34, 13);
             this.lblMake.TabIndex = 13;
@@ -513,15 +568,15 @@
             // 
             this.Uom.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.Uom.FormattingEnabled = true;
-            this.Uom.Location = new System.Drawing.Point(343, 251);
+            this.Uom.Location = new System.Drawing.Point(343, 279);
             this.Uom.Name = "Uom";
             this.Uom.Size = new System.Drawing.Size(53, 21);
-            this.Uom.TabIndex = 18;
+            this.Uom.TabIndex = 19;
             // 
             // lblUom
             // 
             this.lblUom.AutoSize = true;
-            this.lblUom.Location = new System.Drawing.Point(302, 255);
+            this.lblUom.Location = new System.Drawing.Point(302, 283);
             this.lblUom.Name = "lblUom";
             this.lblUom.Size = new System.Drawing.Size(32, 13);
             this.lblUom.TabIndex = 9;
@@ -816,7 +871,7 @@
             // UpdateOdoo
             // 
             this.UpdateOdoo.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.UpdateOdoo.Location = new System.Drawing.Point(377, 764);
+            this.UpdateOdoo.Location = new System.Drawing.Point(546, 764);
             this.UpdateOdoo.Name = "UpdateOdoo";
             this.UpdateOdoo.Size = new System.Drawing.Size(79, 23);
             this.UpdateOdoo.TabIndex = 37;
@@ -921,7 +976,7 @@
             // 
             this.UomChange.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.UomChange.ForeColor = System.Drawing.Color.Red;
-            this.UomChange.Location = new System.Drawing.Point(281, 255);
+            this.UomChange.Location = new System.Drawing.Point(281, 283);
             this.UomChange.Margin = new System.Windows.Forms.Padding(0);
             this.UomChange.Name = "UomChange";
             this.UomChange.Size = new System.Drawing.Size(22, 14);
@@ -929,23 +984,23 @@
             this.UomChange.Text = "OS";
             this.UomChange.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
-            // AltQtyChange
+            // AltQtyValueChange
             // 
-            this.AltQtyChange.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.AltQtyChange.ForeColor = System.Drawing.Color.Red;
-            this.AltQtyChange.Location = new System.Drawing.Point(281, 281);
-            this.AltQtyChange.Margin = new System.Windows.Forms.Padding(0);
-            this.AltQtyChange.Name = "AltQtyChange";
-            this.AltQtyChange.Size = new System.Drawing.Size(22, 14);
-            this.AltQtyChange.TabIndex = 74;
-            this.AltQtyChange.Text = "OS";
-            this.AltQtyChange.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.AltQtyValueChange.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.AltQtyValueChange.ForeColor = System.Drawing.Color.Red;
+            this.AltQtyValueChange.Location = new System.Drawing.Point(2, 308);
+            this.AltQtyValueChange.Margin = new System.Windows.Forms.Padding(0);
+            this.AltQtyValueChange.Name = "AltQtyValueChange";
+            this.AltQtyValueChange.Size = new System.Drawing.Size(22, 14);
+            this.AltQtyValueChange.TabIndex = 74;
+            this.AltQtyValueChange.Text = "OS";
+            this.AltQtyValueChange.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // MakeChange
             // 
             this.MakeChange.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.MakeChange.ForeColor = System.Drawing.Color.Red;
-            this.MakeChange.Location = new System.Drawing.Point(281, 307);
+            this.MakeChange.Location = new System.Drawing.Point(281, 255);
             this.MakeChange.Margin = new System.Windows.Forms.Padding(0);
             this.MakeChange.Name = "MakeChange";
             this.MakeChange.Size = new System.Drawing.Size(22, 14);
@@ -1281,53 +1336,6 @@
             this.btnSearchRm.UseVisualStyleBackColor = true;
             this.btnSearchRm.Click += new System.EventHandler(this.BtnSearchRm_Click);
             // 
-            // btnSettings
-            // 
-            this.btnSettings.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.btnSettings.Image = ((System.Drawing.Image)(resources.GetObject("btnSettings.Image")));
-            this.btnSettings.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.btnSettings.Name = "btnSettings";
-            this.btnSettings.ShowDropDownArrow = false;
-            this.btnSettings.Size = new System.Drawing.Size(20, 22);
-            this.btnSettings.Text = "Settings";
-            this.btnSettings.ToolTipText = "Settings";
-            this.btnSettings.Click += new System.EventHandler(this.BtnSettings_Click);
-            // 
-            // btnRefresh
-            // 
-            this.btnRefresh.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.btnRefresh.Image = ((System.Drawing.Image)(resources.GetObject("btnRefresh.Image")));
-            this.btnRefresh.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.btnRefresh.Name = "btnRefresh";
-            this.btnRefresh.ShowDropDownArrow = false;
-            this.btnRefresh.Size = new System.Drawing.Size(20, 22);
-            this.btnRefresh.Text = "Refresh";
-            this.btnRefresh.Click += new System.EventHandler(this.BtnRefresh_Click);
-            // 
-            // btnBomScan
-            // 
-            this.btnBomScan.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.btnBomScan.Image = ((System.Drawing.Image)(resources.GetObject("btnBomScan.Image")));
-            this.btnBomScan.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.btnBomScan.Name = "btnBomScan";
-            this.btnBomScan.ShowDropDownArrow = false;
-            this.btnBomScan.Size = new System.Drawing.Size(20, 22);
-            this.btnBomScan.Text = "toolStripDropDownButton1";
-            this.btnBomScan.ToolTipText = "BOM Scan";
-            this.btnBomScan.Click += new System.EventHandler(this.BtnBomScan_Click);
-            // 
-            // btnGetImage
-            // 
-            this.btnGetImage.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.btnGetImage.Image = ((System.Drawing.Image)(resources.GetObject("btnGetImage.Image")));
-            this.btnGetImage.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.btnGetImage.Name = "btnGetImage";
-            this.btnGetImage.ShowDropDownArrow = false;
-            this.btnGetImage.Size = new System.Drawing.Size(20, 22);
-            this.btnGetImage.Text = "toolStripDropDownButton1";
-            this.btnGetImage.ToolTipText = "Get Image";
-            this.btnGetImage.Click += new System.EventHandler(this.BtnGetImage_Click);
-            // 
             // btnCopyFrom
             // 
             this.btnCopyFrom.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
@@ -1340,12 +1348,50 @@
             this.btnCopyFrom.UseVisualStyleBackColor = true;
             this.btnCopyFrom.Click += new System.EventHandler(this.BtnCopyFrom_Click);
             // 
+            // AltQtyValue
+            // 
+            this.AltQtyValue.Location = new System.Drawing.Point(65, 305);
+            this.AltQtyValue.Name = "AltQtyValue";
+            this.AltQtyValue.Size = new System.Drawing.Size(259, 20);
+            this.AltQtyValue.TabIndex = 21;
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(328, 309);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(13, 13);
+            this.label5.TabIndex = 103;
+            this.label5.Text = "=";
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(182, 244);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(23, 13);
+            this.label6.TabIndex = 105;
+            this.label6.Text = "T =";
+            // 
+            // Thickness
+            // 
+            this.Thickness.Location = new System.Drawing.Point(205, 240);
+            this.Thickness.Name = "Thickness";
+            this.Thickness.ReadOnly = true;
+            this.Thickness.Size = new System.Drawing.Size(53, 20);
+            this.Thickness.TabIndex = 104;
+            this.Thickness.TabStop = false;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.btnCancel;
             this.ClientSize = new System.Drawing.Size(721, 814);
+            this.Controls.Add(this.label6);
+            this.Controls.Add(this.Thickness);
+            this.Controls.Add(this.label5);
+            this.Controls.Add(this.AltQtyValue);
             this.Controls.Add(this.btnCopyFrom);
             this.Controls.Add(this.DrawnDateChange);
             this.Controls.Add(this.DesignedDateChange);
@@ -1373,7 +1419,7 @@
             this.Controls.Add(this.NonEcoModChange);
             this.Controls.Add(this.HoldProductionChange);
             this.Controls.Add(this.MakeChange);
-            this.Controls.Add(this.AltQtyChange);
+            this.Controls.Add(this.AltQtyValueChange);
             this.Controls.Add(this.UomChange);
             this.Controls.Add(this.RouteTemplateChange);
             this.Controls.Add(this.ChildQtyChange);
@@ -1557,7 +1603,7 @@
         private System.Windows.Forms.Label ChildQtyChange;
         private System.Windows.Forms.Label RouteTemplateChange;
         private System.Windows.Forms.Label UomChange;
-        private System.Windows.Forms.Label AltQtyChange;
+        private System.Windows.Forms.Label AltQtyValueChange;
         private System.Windows.Forms.Label MakeChange;
         private System.Windows.Forms.Label HasEtchingChange;
         private System.Windows.Forms.Label NonEcoModChange;
@@ -1586,6 +1632,10 @@
         private System.Windows.Forms.Label RevisionChange;
         private System.Windows.Forms.ToolTip toolTip1;
         private System.Windows.Forms.Button btnCopyFrom;
+        private System.Windows.Forms.TextBox AltQtyValue;
+        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.TextBox Thickness;
     }
 }
 
