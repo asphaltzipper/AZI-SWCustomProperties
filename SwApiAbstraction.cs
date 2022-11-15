@@ -1035,7 +1035,7 @@ namespace SwApiAbstraction
         {
             int imageWidth = AZI_SWCustomProperties.Properties.AppSettings.Default.ImageWidth;
             int imageHeight = AZI_SWCustomProperties.Properties.AppSettings.Default.ImageHeight;
-            Bitmap bmp = GetViewImage(imageWidth * 2, imageHeight * 2, namedView, -1);
+            Bitmap bmp = GetViewImage((int)(imageWidth / 2), (int)(imageHeight / 2), namedView, -1);
             Bitmap bmp2 = ResizeImage(bmp, imageWidth, imageHeight);
             return bmp2;
         }
@@ -1044,7 +1044,7 @@ namespace SwApiAbstraction
         {
             int imageWidth = AZI_SWCustomProperties.Properties.AppSettings.Default.ImageWidth;
             int imageHeight = AZI_SWCustomProperties.Properties.AppSettings.Default.ImageHeight;
-            Bitmap bmp = GetViewImage(imageWidth * 2, imageHeight * 2, null, -1);
+            Bitmap bmp = GetViewImage((int)(imageWidth / 2), (int)(imageHeight / 2), null, -1);
             Bitmap bmp2 = ResizeImage(bmp, imageWidth, imageHeight);
             return bmp2;
         }
@@ -1053,7 +1053,7 @@ namespace SwApiAbstraction
         {
             int imageWidth = AZI_SWCustomProperties.Properties.AppSettings.Default.ImageWidth;
             int imageHeight = AZI_SWCustomProperties.Properties.AppSettings.Default.ImageHeight;
-            Bitmap bmp = GetViewImage(imageWidth * 2, imageHeight * 2, null, viewNumber);
+            Bitmap bmp = GetViewImage((int)(imageWidth / 2), (int)(imageHeight / 2), null, viewNumber);
             Bitmap bmp2 = ResizeImage(bmp, imageWidth, imageHeight);
             return bmp2;
         }

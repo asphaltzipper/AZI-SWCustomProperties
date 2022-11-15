@@ -1222,6 +1222,15 @@ namespace AZI_SWCustomProperties
             else
                 Material.Text = ((ComboboxItem)MaterialPn.SelectedItem).Text;
         }
+
+        private void btnOverwriteEcos_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show(
+                "Overwriting ECOs is not yet implemented",
+                "Not Implemented",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Warning);
+        }
     }
 
     public class ComboboxItem
