@@ -119,7 +119,7 @@ namespace ImageForm
             string base64String = Convert.ToBase64String(byteArray);
             Dictionary<string, Object> values = new Dictionary<string, Object>()
             {
-                { "image", base64String },
+                { "image_1920", base64String },
             };
             oProd.RawWrite(values);
             GetOdooImage();

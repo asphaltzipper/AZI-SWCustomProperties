@@ -156,7 +156,7 @@ namespace OdooObjects
             filter.Add(new ArrayList(3) { "active", "=", true });
             filter.Add(new ArrayList(3) { "active", "=", false });
             records = oClient.Browse("product.template", filter, this.tmplFields);
-            if (records == null)
+            if (records == null || records.Count == 0)
             {
                 latestException = oClient.LatestException;
                 return;
