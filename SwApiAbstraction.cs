@@ -845,6 +845,7 @@ namespace SwApiAbstraction
                 // see enumeration swStandardViews_e
                 swMainModel.ShowNamedView2(namedView, swStandardView);
             }
+            swMainModel.Extension.HideFeatureManager(true);
             swMainModel.ViewZoomtofit2();
 
             // extract the image to temp file
@@ -866,6 +867,7 @@ namespace SwApiAbstraction
             // apply original user settings
             swMainModel.SetUserPreferenceToggle((int)swUserPreferenceToggle_e.swViewDisplayHideAllTypes, prefViewDisplayHideAllTypes);
             swModelView.DisplayMode = (int)swViewDisplayMode_e.swViewDisplayMode_ShadedWithEdges;
+            swMainModel.Extension.HideFeatureManager(false);
 
             return bmp;
         }
